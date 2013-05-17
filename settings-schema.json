@@ -1,0 +1,111 @@
+{
+  "general": {
+    "type": "header",
+    "description": "General Settings"
+  },
+  
+  "panelIcon": {
+    "type": "iconfilechooser",
+    "description": "Panel Icon",
+    "default": "folder"
+  },
+  
+  "panelText": {
+    "type": "entry",
+    "description": "Panel Text",
+    "default": ""
+  },
+  
+  "iconSize": {
+    "type": "spinbutton",
+    "default": 20,
+    "min": 10,
+    "max": 50,
+    "units": "px",
+    "step": 2,
+    "description": "Icon Size"
+  },
+  
+  "showBookmarks": {
+    "type": "checkbox",
+    "description": "Show User Folders",
+    "default": true
+  },
+  
+  "sep1": {
+    "type": "separator"
+  },
+  
+  "places": {
+    "type": "header",
+    "description": "Show in System Menu"
+  },
+  
+  "showComputer": {
+    "type": "checkbox",
+    "description": "Computer",
+    "default": true
+  },
+  
+  "showRoot": {
+    "type": "checkbox",
+    "description": "File System",
+    "default": true
+  },
+  
+  "showVolumes": {
+    "type": "checkbox",
+    "description": "Drives",
+    "default": true
+  },
+  
+  "showNetwork": {
+    "type": "checkbox",
+    "description": "Network",
+    "default": true
+  },
+  
+  "showTrash": {
+    "type": "combobox",
+    "description": "Trash",
+    "default": 2,
+    "options": {
+      "Never": 0,
+      "Always": 1,
+      "When not empty": 2
+    }
+  },
+  
+  "customPlaces": {
+    "type": "entry",
+    "description": "Custom Places",
+    "default": ""
+  },
+  
+  "sep2": {
+    "type": "separator"
+  },
+  
+  "recent": {
+    "type": "header",
+    "description": "Recent Documents"
+  },
+  
+  "showRecentDocuments": {
+    "type": "checkbox",
+    "description": "Show Recent Documents Section",
+    "default": false
+  },
+  
+  "recentSizeLimit": {
+    "type": "spinbutton",
+    "default": 10,
+    "min": 0,
+    "max": 30,
+    "units": "",
+    "step": 1,
+    "description": "Number to show",
+    "indent": true,
+    "dependency": "showRecentDocuments"
+  }
+}
