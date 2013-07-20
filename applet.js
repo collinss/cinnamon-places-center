@@ -7,6 +7,7 @@ const Applet = imports.ui.applet;
 const Main = imports.ui.main;
 const PopupMenu = imports.ui.popupMenu;
 const Settings = imports.ui.settings;
+const Tooltips = imports.ui.tooltips;
 
 const Util = imports.misc.util;
 const Lang = imports.lang;
@@ -29,7 +30,10 @@ MenuItem.prototype = {
             PopupMenu.PopupBaseMenuItem.prototype._init.call(this, params);
             this.addActor(icon);
             
-            if ( title.length > MENU_ITEM_TEXT_LENGTH ) title = title.slice(0,MENU_ITEM_TEXT_LENGTH-3) + "...";
+            if ( title.length > MENU_ITEM_TEXT_LENGTH ) {
+                let tooltip = new Tooltips.Tooltip(this.actor, title);
+                title = title.slice(0,MENU_ITEM_TEXT_LENGTH-3) + "...";
+            }
             let label = new St.Label({ text:title });
             this.addActor(label);
             this.actor._delegate = this;
