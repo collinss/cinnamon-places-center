@@ -309,11 +309,6 @@ MyApplet.prototype = {
             
             this.build_menu();
             
-            let settingsMenuItem = new Applet.MenuItem(_("Settings"), Gtk.STOCK_EDIT, Lang.bind(this, function() {
-                Util.spawnCommandLine("cinnamon-settings applets " + UUID);
-            }));
-            this._applet_context_menu.addMenuItem(settingsMenuItem);
-            
         } catch(e) {
             global.logError(e);
         }
