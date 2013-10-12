@@ -286,7 +286,7 @@ MyApplet.prototype = {
             this._set_panel_text();
             this.set_applet_tooltip(_("Places"));
             
-            //listen for changes in places
+            //listen for changes
             this.menuManager = new PopupMenu.PopupMenuManager(this);
             this.recentManager = new Gtk.RecentManager();
             this.recentManager.connect("changed", Lang.bind(this, this._build_recent_documents_section));
@@ -297,7 +297,7 @@ MyApplet.prototype = {
             this.volumeMonitor.connect("mount-added", Lang.bind(this, this._update_volumes));
             this.volumeMonitor.connect("mount-removed", Lang.bind(this, this._update_volumes));
             
-            this.build_menu();
+            this.buildMenu();
             
         } catch(e) {
             global.logError(e);
@@ -320,15 +320,15 @@ MyApplet.prototype = {
         this.settings = new Settings.AppletSettings(this, this.metadata["uuid"], this.instanceId);
         this.settings.bindProperty(Settings.BindingDirection.IN, "panelIcon", "panelIcon", this._set_panel_icon);
         this.settings.bindProperty(Settings.BindingDirection.IN, "panelText", "panelText", this._set_panel_text);
-        this.settings.bindProperty(Settings.BindingDirection.IN, "iconSize", "iconSize", this.build_menu)
-        this.settings.bindProperty(Settings.BindingDirection.IN, "showBookmarks", "showBookmarks", this.build_menu);
+        this.settings.bindProperty(Settings.BindingDirection.IN, "iconSize", "iconSize", this.buildMenu)
+        this.settings.bindProperty(Settings.BindingDirection.IN, "showBookmarks", "showBookmarks", this.buildMenu);
         this.settings.bindProperty(Settings.BindingDirection.IN, "showComputer", "showComputer", this._build_system_section);
         this.settings.bindProperty(Settings.BindingDirection.IN, "showRoot", "showRoot", this._build_system_section);
         this.settings.bindProperty(Settings.BindingDirection.IN, "showVolumes", "showVolumes", this._build_system_section);
         this.settings.bindProperty(Settings.BindingDirection.IN, "showNetwork", "showNetwork", this._build_system_section);
         this.settings.bindProperty(Settings.BindingDirection.IN, "showTrash", "showTrash", this._build_trash_item);
         this.settings.bindProperty(Settings.BindingDirection.IN, "customPlaces", "customPlaces", this._build_system_section);
-        this.settings.bindProperty(Settings.BindingDirection.IN, "showRecentDocuments", "showRecentDocuments", this.build_menu);
+        this.settings.bindProperty(Settings.BindingDirection.IN, "showRecentDocuments", "showRecentDocuments", this.buildMenu);
         this.settings.bindProperty(Settings.BindingDirection.IN, "recentSizeLimit", "recentSizeLimit", this._build_recent_documents_section);
         this.settings.bindProperty(Settings.BindingDirection.IN, "keyOpen", "keyOpen", this._setKeybinding);
         this._setKeybinding();
@@ -341,7 +341,7 @@ MyApplet.prototype = {
         Main.keybindingManager.addHotKey(this.keyId, this.keyOpen, Lang.bind(this, this.openMenu));
     },
     
-    build_menu: function() {
+    buildMenu: function() {
         try {
             
             if ( this.menu ) {
