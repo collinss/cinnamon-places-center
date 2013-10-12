@@ -263,33 +263,23 @@ ClearRecentMenuItem.prototype = {
 }
 
 
-function MyApplet(orientation, panel_height, instanceId) {
-    this._init(orientation, panel_height, instanceId);
+function MyApplet(metadata, orientation, panel_height, instanceId) {
+    this._init(metadata, orientation, panel_height, instanceId);
 }
 
 MyApplet.prototype = {
     __proto__: Applet.TextIconApplet.prototype,
     
-    _init: function(orientation, panel_height, instanceId) {
+    _init: function(metadata, orientation, panel_height, instanceId) {
         try {
             
+            this.metadata = metadata;
+            this.instanceId = instanceId;
             this.orientation = orientation;
             Applet.TextIconApplet.prototype._init.call(this, this.orientation, panel_height);
             
             //initiate settings
-            this.settings = new Settings.AppletSettings(this, "placesCenter@scollins", instanceId);
-            this.settings.bindProperty(Settings.BindingDirection.IN, "panelIcon", "panelIcon", this._set_panel_icon);
-            this.settings.bindProperty(Settings.BindingDirection.IN, "panelText", "panelText", this._set_panel_text);
-            this.settings.bindProperty(Settings.BindingDirection.IN, "iconSize", "iconSize", this.build_menu)
-            this.settings.bindProperty(Settings.BindingDirection.IN, "showBookmarks", "showBookmarks", this.build_menu);
-            this.settings.bindProperty(Settings.BindingDirection.IN, "showComputer", "showComputer", this._build_system_section);
-            this.settings.bindProperty(Settings.BindingDirection.IN, "showRoot", "showRoot", this._build_system_section);
-            this.settings.bindProperty(Settings.BindingDirection.IN, "showVolumes", "showVolumes", this._build_system_section);
-            this.settings.bindProperty(Settings.BindingDirection.IN, "showNetwork", "showNetwork", this._build_system_section);
-            this.settings.bindProperty(Settings.BindingDirection.IN, "showTrash", "showTrash", this._build_trash_item);
-            this.settings.bindProperty(Settings.BindingDirection.IN, "customPlaces", "customPlaces", this._build_system_section);
-            this.settings.bindProperty(Settings.BindingDirection.IN, "showRecentDocuments", "showRecentDocuments", this.build_menu);
-            this.settings.bindProperty(Settings.BindingDirection.IN, "recentSizeLimit", "recentSizeLimit", this._build_recent_documents_section);
+            this._bindSettings();
             
             //set up panel
             this._set_panel_icon();
@@ -316,6 +306,39 @@ MyApplet.prototype = {
     
     on_applet_clicked: function(event) {
         this.menu.toggle();
+    },
+    
+    on_applet_removed_from_panel: function() {
+        if ( this.keyId ) Main.keybindingManager.removeHotKey(this.keyId);
+    },
+    
+    openMenu: function(){
+        this.menu.open();
+    },
+    
+    _bindSettings: function() {
+        this.settings = new Settings.AppletSettings(this, this.metadata["uuid"], this.instanceId);
+        this.settings.bindProperty(Settings.BindingDirection.IN, "panelIcon", "panelIcon", this._set_panel_icon);
+        this.settings.bindProperty(Settings.BindingDirection.IN, "panelText", "panelText", this._set_panel_text);
+        this.settings.bindProperty(Settings.BindingDirection.IN, "iconSize", "iconSize", this.build_menu)
+        this.settings.bindProperty(Settings.BindingDirection.IN, "showBookmarks", "showBookmarks", this.build_menu);
+        this.settings.bindProperty(Settings.BindingDirection.IN, "showComputer", "showComputer", this._build_system_section);
+        this.settings.bindProperty(Settings.BindingDirection.IN, "showRoot", "showRoot", this._build_system_section);
+        this.settings.bindProperty(Settings.BindingDirection.IN, "showVolumes", "showVolumes", this._build_system_section);
+        this.settings.bindProperty(Settings.BindingDirection.IN, "showNetwork", "showNetwork", this._build_system_section);
+        this.settings.bindProperty(Settings.BindingDirection.IN, "showTrash", "showTrash", this._build_trash_item);
+        this.settings.bindProperty(Settings.BindingDirection.IN, "customPlaces", "customPlaces", this._build_system_section);
+        this.settings.bindProperty(Settings.BindingDirection.IN, "showRecentDocuments", "showRecentDocuments", this.build_menu);
+        this.settings.bindProperty(Settings.BindingDirection.IN, "recentSizeLimit", "recentSizeLimit", this._build_recent_documents_section);
+        this.settings.bindProperty(Settings.BindingDirection.IN, "keyOpen", "keyOpen", this._setKeybinding);
+        this._setKeybinding();
+    },
+    
+    _setKeybinding: function() {
+        if ( this.keyId ) Main.keybindingManager.removeHotKey(this.keyId);
+        if ( this.keyOpen == "" ) return;
+        this.keyId = "placesCenter-open";
+        Main.keybindingManager.addHotKey(this.keyId, this.keyOpen, Lang.bind(this, this.openMenu));
     },
     
     build_menu: function() {
@@ -564,6 +587,6 @@ MyApplet.prototype = {
 
 
 function main(metadata, orientation, panel_height, instanceId) {
-    let myApplet = new MyApplet(orientation, panel_height, instanceId);
+    let myApplet = new MyApplet(metadata, orientation, panel_height, instanceId);
     return myApplet;
 }

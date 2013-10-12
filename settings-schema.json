@@ -16,6 +16,12 @@
         "default": ""
     },
     
+    "keyOpen": {
+        "type": "keybinding",
+        "description": "Menu shorcut key",
+        "default": ""
+    },
+    
     "iconSize": {
         "type": "spinbutton",
         "default": 20,
