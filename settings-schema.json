@@ -19,7 +19,7 @@
     "keyOpen": {
         "type": "keybinding",
         "description": "Menu shorcut key",
-        "default": ""
+        "default": "<Super>p"
     },
     
     "iconSize": {
