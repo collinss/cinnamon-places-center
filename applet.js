@@ -394,19 +394,25 @@ MyApplet.prototype = {
             //recent documents section
             if ( this.showRecentDocuments ) {
                 
-                let documentPane = new PopupMenu.PopupMenuSection();
+                let recentPane = new PopupMenu.PopupMenuSection();
+                mainBox.add_actor(recentPane.actor, { span: 1 });
+                
                 let title = new PopupMenu.PopupMenuItem(_("RECENT DOCUMENTS"), { reactive: false });
-                documentPane.addMenuItem(title);
+                recentPane.addMenuItem(title);
                 
                 let recentScrollBox = new St.ScrollView({ x_fill: true, y_fill: false, y_align: St.Align.START });
+                recentPane.actor.add_actor(recentScrollBox);
+                recentScrollBox.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC);
+                let vscroll = recentScrollBox.get_vscroll_bar();
+                vscroll.connect('scroll-start', Lang.bind(this, function() { this.menu.passEvents = true; }));
+                vscroll.connect('scroll-stop', Lang.bind(this, function() { this.menu.passEvents = false; }));
+                
                 this.recentSection = new PopupMenu.PopupMenuSection();
-                documentPane.actor.add_actor(recentScrollBox);
                 recentScrollBox.add_actor(this.recentSection.actor);
                 
                 let clearRecent = new ClearRecentMenuItem(this.menu, this.recentManager);
-                documentPane.addMenuItem(clearRecent);
+                recentPane.addMenuItem(clearRecent);
                 
-                mainBox.add_actor(documentPane.actor, { span: 1 });
                 this._build_recent_documents_section();
                 
             }
