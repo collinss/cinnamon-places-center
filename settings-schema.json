@@ -85,7 +85,8 @@
     "customPlaces": {
         "type": "entry",
         "description": "Custom Places",
-        "default": ""
+        "default": "",
+        "tooltip": "Comma-separated list of file paths and/or uris"
     },
     
     "sep2": {
