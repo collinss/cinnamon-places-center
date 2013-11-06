@@ -488,6 +488,7 @@ MyApplet.prototype = {
             try {
                 
                 let place = customPlaces[i].replace("~/", GLib.get_home_dir() + "/");
+                while ( place[0] == " " ) place = place.substr(1);
                 if ( place.search("://") == -1 ) place = "file://" + place;
                 let file = Gio.File.new_for_uri(place);
                 if ( file.query_exists(null) ) uris.push(place);
