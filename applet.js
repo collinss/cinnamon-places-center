@@ -486,14 +486,12 @@ MyApplet.prototype = {
         for ( let i = 0; i < customPlaces.length; i++ ) {
             if ( customPlaces[i] == "" ) continue;
             try {
-                if ( customPlaces[i].search("://") == -1 ) {
-                    let file = Gio.File.new_for_path(customPlaces[i]);
-                    if ( file.query_exists(null) ) uris.push("file://" + customPlaces[i]);
-                }
-                else {
-                    let file = Gio.File.new_for_uri(customPlaces[i]);
-                    if ( file.query_exists(null) ) uris.push(customPlaces[i]);
-                }
+                
+                let place = customPlaces[i].replace("~/", GLib.get_home_dir() + "/");
+                if ( place.search("://") == -1 ) place = "file://" + place;
+                let file = Gio.File.new_for_uri(place);
+                if ( file.query_exists(null) ) uris.push(place);
+                
             } catch(e) { continue; }
         }
         
