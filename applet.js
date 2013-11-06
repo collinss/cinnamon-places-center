@@ -453,15 +453,15 @@ MyApplet.prototype = {
             this.systemSection.addMenuItem(fileSystem);
         }
         
-        //custom places
-        this._build_custom_places();
-        
         //volumes and mounts
         if ( this.showVolumes ) {
             this.devicesSection = new PopupMenu.PopupMenuSection();
             this.systemSection.addMenuItem(this.devicesSection);
             this._build_devices_section();
         }
+        
+        //custom places
+        this._build_custom_places();
         
         //network items
         if ( this.showNetwork ) {
