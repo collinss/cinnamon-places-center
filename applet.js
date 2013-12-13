@@ -313,7 +313,7 @@ MyApplet.prototype = {
     },
     
     openMenu: function(){
-        this.menu.open();
+        this.menu.toggle();
     },
     
     _bindSettings: function() {
