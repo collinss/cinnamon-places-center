@@ -428,7 +428,7 @@ MyApplet.prototype = {
         
         let defaultPlaces = Main.placesManager.getDefaultPlaces();
         let defaultPlaces = [defaultPlaces[0], defaultPlaces[1]];
-        bookmarks = defaultPlaces.concat(Main.placesManager.getBookmarks());
+        let bookmarks = defaultPlaces.concat(Main.placesManager.getBookmarks());
         
         for ( let i = 0; i < bookmarks.length; i++) {
             let bookmark = new BookmarkMenuItem(this.menu, bookmarks[i]);
@@ -572,7 +572,7 @@ MyApplet.prototype = {
         
         if ( this.showTrash == 2 && trashcanEmpty ) return;
         
-        iName = ( trashcanEmpty ) ? "trashcan_empty" : "trashcan_full";
+        let iName = ( trashcanEmpty ) ? "trashcan_empty" : "trashcan_full";
         
         this.trashItem = new PlaceMenuItem(this.menu, _("Trash"), uri, iName);
         this.systemSection.addMenuItem(this.trashItem);
