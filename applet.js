@@ -14,7 +14,6 @@ const Lang = imports.lang;
 
 const MENU_ITEM_TEXT_LENGTH = 25;
 const MENU_PADDING_WIDTH = 25;
-const UUID = "placesCenter@scollins";
 let menu_item_icon_size;
 
 function MenuItem(title, icon){
@@ -279,23 +278,23 @@ MyApplet.prototype = {
             Applet.TextIconApplet.prototype._init.call(this, this.orientation, panel_height);
             
             //initiate settings
-            this._bindSettings();
+            this.bindSettings();
             
             //set up panel
-            this._set_panel_icon();
-            this._set_panel_text();
+            this.setPanelIcon();
+            this.setPanelText();
             this.set_applet_tooltip(_("Places"));
             
             //listen for changes
             this.menuManager = new PopupMenu.PopupMenuManager(this);
             this.recentManager = new Gtk.RecentManager();
-            this.recentManager.connect("changed", Lang.bind(this, this._build_recent_documents_section));
-            Main.placesManager.connect("bookmarks-updated", Lang.bind(this, this._build_bookmarks_section));
+            this.recentManager.connect("changed", Lang.bind(this, this.buildRecentDocumentsSection));
+            Main.placesManager.connect("bookmarks-updated", Lang.bind(this, this.buildBookmarksSection));
             this.volumeMonitor = Gio.VolumeMonitor.get();
-            this.volumeMonitor.connect("volume-added", Lang.bind(this, this._update_volumes));
-            this.volumeMonitor.connect("volume-removed", Lang.bind(this, this._update_volumes));
-            this.volumeMonitor.connect("mount-added", Lang.bind(this, this._update_volumes));
-            this.volumeMonitor.connect("mount-removed", Lang.bind(this, this._update_volumes));
+            this.volumeMonitor.connect("volume-added", Lang.bind(this, this.updateVolumes));
+            this.volumeMonitor.connect("volume-removed", Lang.bind(this, this.updateVolumes));
+            this.volumeMonitor.connect("mount-added", Lang.bind(this, this.updateVolumes));
+            this.volumeMonitor.connect("mount-removed", Lang.bind(this, this.updateVolumes));
             
             this.buildMenu();
             
@@ -316,25 +315,25 @@ MyApplet.prototype = {
         this.menu.toggle();
     },
     
-    _bindSettings: function() {
-        this.settings = new Settings.AppletSettings(this, this.metadata["uuid"], this.instanceId);
-        this.settings.bindProperty(Settings.BindingDirection.IN, "panelIcon", "panelIcon", this._set_panel_icon);
-        this.settings.bindProperty(Settings.BindingDirection.IN, "panelText", "panelText", this._set_panel_text);
+    bindSettings: function() {
+        this.settings = new Settings.AppletSettings(this, this.metadata.uuid, this.instanceId);
+        this.settings.bindProperty(Settings.BindingDirection.IN, "panelIcon", "panelIcon", this.setPanelIcon);
+        this.settings.bindProperty(Settings.BindingDirection.IN, "panelText", "panelText", this.setPanelText);
         this.settings.bindProperty(Settings.BindingDirection.IN, "iconSize", "iconSize", this.buildMenu)
         this.settings.bindProperty(Settings.BindingDirection.IN, "showBookmarks", "showBookmarks", this.buildMenu);
-        this.settings.bindProperty(Settings.BindingDirection.IN, "showComputer", "showComputer", this._build_system_section);
-        this.settings.bindProperty(Settings.BindingDirection.IN, "showRoot", "showRoot", this._build_system_section);
-        this.settings.bindProperty(Settings.BindingDirection.IN, "showVolumes", "showVolumes", this._build_system_section);
-        this.settings.bindProperty(Settings.BindingDirection.IN, "showNetwork", "showNetwork", this._build_system_section);
-        this.settings.bindProperty(Settings.BindingDirection.IN, "showTrash", "showTrash", this._build_trash_item);
-        this.settings.bindProperty(Settings.BindingDirection.IN, "customPlaces", "customPlaces", this._build_system_section);
+        this.settings.bindProperty(Settings.BindingDirection.IN, "showComputer", "showComputer", this.buildSystemSection);
+        this.settings.bindProperty(Settings.BindingDirection.IN, "showRoot", "showRoot", this.buildSystemSection);
+        this.settings.bindProperty(Settings.BindingDirection.IN, "showVolumes", "showVolumes", this.buildSystemSection);
+        this.settings.bindProperty(Settings.BindingDirection.IN, "showNetwork", "showNetwork", this.buildSystemSection);
+        this.settings.bindProperty(Settings.BindingDirection.IN, "showTrash", "showTrash", this.buildTrashItem);
+        this.settings.bindProperty(Settings.BindingDirection.IN, "customPlaces", "customPlaces", this.buildSystemSection);
         this.settings.bindProperty(Settings.BindingDirection.IN, "showRecentDocuments", "showRecentDocuments", this.buildMenu);
-        this.settings.bindProperty(Settings.BindingDirection.IN, "recentSizeLimit", "recentSizeLimit", this._build_recent_documents_section);
-        this.settings.bindProperty(Settings.BindingDirection.IN, "keyOpen", "keyOpen", this._setKeybinding);
-        this._setKeybinding();
+        this.settings.bindProperty(Settings.BindingDirection.IN, "recentSizeLimit", "recentSizeLimit", this.buildRecentDocumentsSection);
+        this.settings.bindProperty(Settings.BindingDirection.IN, "keyOpen", "keyOpen", this.setKeybinding);
+        this.setKeybinding();
     },
     
-    _setKeybinding: function() {
+    setKeybinding: function() {
         if ( this.keyId ) Main.keybindingManager.removeHotKey(this.keyId);
         if ( this.keyOpen == "" ) return;
         this.keyId = "placesCenter-open";
@@ -344,9 +343,7 @@ MyApplet.prototype = {
     buildMenu: function() {
         try {
             
-            if ( this.menu ) {
-                this.menu.destroy();
-            }
+            if ( this.menu ) this.menu.destroy();
             
             menu_item_icon_size = this.iconSize;
             
@@ -354,12 +351,11 @@ MyApplet.prototype = {
             this.menuManager.addMenu(this.menu);
             let section = new PopupMenu.PopupMenuSection();
             this.menu.addMenuItem(section);
-            let mainBox = new St.BoxLayout({ style_class: 'menu-applications-box', vertical: false });
+            let mainBox = new St.BoxLayout({ style_class: "menu-applications-box", vertical: false });
             section.actor.add_actor(mainBox);
             
             //User section
             if ( this.showBookmarks ) {
-                
                 let bookmarkPane = new PopupMenu.PopupMenuSection();
                 let title = new PopupMenu.PopupMenuItem(GLib.get_user_name().toUpperCase() , { reactive: false });
                 bookmarkPane.addMenuItem(title);
@@ -368,12 +364,11 @@ MyApplet.prototype = {
                 bookmarkPane.addMenuItem(this.bookmarkSection);
                 
                 mainBox.add_actor(bookmarkPane.actor, { span: 1 });
-                this._build_bookmarks_section();
+                this.buildBookmarksSection();
                 
                 let paddingBox = new St.BoxLayout();
                 paddingBox.set_width(MENU_PADDING_WIDTH);
                 mainBox.add_actor(paddingBox);
-                
             }
             
             //system section
@@ -385,7 +380,7 @@ MyApplet.prototype = {
             systemPane.addMenuItem(this.systemSection);
             
             mainBox.add_actor(systemPane.actor, { span: 1 });
-            this._build_system_section();
+            this.buildSystemSection();
             
             let paddingBox = new St.BoxLayout();
             paddingBox.set_width(MENU_PADDING_WIDTH);
@@ -393,7 +388,6 @@ MyApplet.prototype = {
             
             //recent documents section
             if ( this.showRecentDocuments ) {
-                
                 let recentPane = new PopupMenu.PopupMenuSection();
                 mainBox.add_actor(recentPane.actor, { span: 1 });
                 
@@ -404,8 +398,8 @@ MyApplet.prototype = {
                 recentPane.actor.add_actor(recentScrollBox);
                 recentScrollBox.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC);
                 let vscroll = recentScrollBox.get_vscroll_bar();
-                vscroll.connect('scroll-start', Lang.bind(this, function() { this.menu.passEvents = true; }));
-                vscroll.connect('scroll-stop', Lang.bind(this, function() { this.menu.passEvents = false; }));
+                vscroll.connect("scroll-start", Lang.bind(this, function() { this.menu.passEvents = true; }));
+                vscroll.connect("scroll-stop", Lang.bind(this, function() { this.menu.passEvents = false; }));
                 
                 this.recentSection = new PopupMenu.PopupMenuSection();
                 recentScrollBox.add_actor(this.recentSection.actor);
@@ -413,8 +407,7 @@ MyApplet.prototype = {
                 let clearRecent = new ClearRecentMenuItem(this.menu, this.recentManager);
                 recentPane.addMenuItem(clearRecent);
                 
-                this._build_recent_documents_section();
-                
+                this.buildRecentDocumentsSection();
             }
             
         } catch(e) {
@@ -422,8 +415,7 @@ MyApplet.prototype = {
         }
     },
     
-    _build_bookmarks_section: function() {
-        
+    buildBookmarksSection: function() {
         this.bookmarkSection.removeAll();
         
         let defaultPlaces = Main.placesManager.getDefaultPlaces();
@@ -434,11 +426,9 @@ MyApplet.prototype = {
             let bookmark = new BookmarkMenuItem(this.menu, bookmarks[i]);
             this.bookmarkSection.addMenuItem(bookmark);
         }
-        
     },
     
-    _build_system_section: function() {
-        
+    buildSystemSection: function() {
         this.systemSection.removeAll();
         
         //computer
@@ -457,11 +447,11 @@ MyApplet.prototype = {
         if ( this.showVolumes ) {
             this.devicesSection = new PopupMenu.PopupMenuSection();
             this.systemSection.addMenuItem(this.devicesSection);
-            this._build_devices_section();
+            this.buildDevicesSection();
         }
         
         //custom places
-        this._build_custom_places();
+        this.buildCustomPlaces();
         
         //network items
         if ( this.showNetwork ) {
@@ -473,12 +463,10 @@ MyApplet.prototype = {
         }
         
         //trash
-        this._build_trash_item();
-        
+        this.buildTrashItem();
     },
     
-    _build_custom_places: function() {
-        
+    buildCustomPlaces: function() {
         if ( this.customPlaces == "" ) return;
         let uris = [];
         let customPlaces = this.customPlaces.split(",");
@@ -504,11 +492,9 @@ MyApplet.prototype = {
             customPlacesSection.addMenuItem(customPlace);
         }
         this.systemSection.addMenuItem(customPlacesSection);
-        
     },
     
-    _build_devices_section: function() {
-        
+    buildDevicesSection: function() {
         this.devicesSection.removeAll();
         
         let volumes = this.volumeMonitor.get_volumes();
@@ -524,11 +510,10 @@ MyApplet.prototype = {
             let volumeMenuItem = new VolumeMenuItem(this.menu, volume, mounted);
             this.devicesSection.addMenuItem(volumeMenuItem);
         }
-        
     },
     
-    _build_recent_documents_section: function() {
-        
+    buildRecentDocumentsSection: function() {
+        if ( !this.showRecentDocuments ) return;
         this.recentSection.removeAll();
         
         let recentDocuments = this.recentManager.get_items();
@@ -542,20 +527,17 @@ MyApplet.prototype = {
             let recentItem = new RecentMenuItem(this.menu, recentInfo.get_display_name(), mimeType, recentInfo.get_uri());
             this.recentSection.addMenuItem(recentItem);
         }
-        
     },
     
-    _update_volumes: function() {
-        
+    updateVolumes: function() {
         if ( this.updatingDevices ) return;
         this.updatingDevices = true;
-        this._build_devices_section();
+        this.buildDevicesSection();
         this.updatingDevices = false;
-        
+        this.buildBookmarksSection();
     },
     
-    _build_trash_item: function() {
-        
+    buildTrashItem: function() {
         if ( this.trashItem ) this.trashItem.destroy();
         if ( this.trashMonitorConnectId != null ) {
             this.trashMonitor.disconnect(this.trashMonitorConnectId);
@@ -568,7 +550,7 @@ MyApplet.prototype = {
         let enumerator = trash.enumerate_children("*", 0, null);
         let trashcanEmpty = enumerator.next_file(null) == null;
         this.trashMonitor = trash.monitor_directory(0, null);
-        this.trashMonitorConnectId = this.trashMonitor.connect("changed", Lang.bind(this, this._build_trash_item));
+        this.trashMonitorConnectId = this.trashMonitor.connect("changed", Lang.bind(this, this.buildTrashItem));
         
         if ( this.showTrash == 2 && trashcanEmpty ) return;
         
@@ -576,15 +558,14 @@ MyApplet.prototype = {
         
         this.trashItem = new PlaceMenuItem(this.menu, _("Trash"), uri, iName);
         this.systemSection.addMenuItem(this.trashItem);
-        
     },
     
-    _set_panel_icon: function() {
+    setPanelIcon: function() {
         if ( this.panelIcon.split("/").length > 1 ) this.set_applet_icon_path(this.panelIcon);
         else this.set_applet_icon_name(this.panelIcon);
     },
     
-    _set_panel_text: function() {
+    setPanelText: function() {
         if ( this.panelText ) this.set_applet_label(this.panelText);
         else this.set_applet_label("");
     }
