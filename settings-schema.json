@@ -10,6 +10,12 @@
         "default": "folder"
     },
     
+    "symbolicPanelIcon": {
+        "type": "checkbox",
+        "description": "Symbolic",
+        "default": false
+    },
+    
     "panelText": {
         "type": "entry",
         "description": "Panel Text",
