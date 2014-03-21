@@ -358,8 +358,17 @@ MyApplet.prototype = {
             //User section
             if ( this.showBookmarks ) {
                 let bookmarkPane = new PopupMenu.PopupMenuSection();
-                let title = new PopupMenu.PopupMenuItem(GLib.get_user_name().toUpperCase() , { reactive: false });
+                let title = new PopupMenu.PopupBaseMenuItem({ reactive: false });
                 bookmarkPane.addMenuItem(title);
+                title.addActor(new St.Label({ text: GLib.get_user_name().toUpperCase() }));
+                
+                //add link to search tool
+                let searchButton = new St.Button();
+                title.addActor(searchButton);
+                let image = new St.Icon({ icon_name: "edit-find", icon_size: 10, icon_type: St.IconType.SYMBOLIC });
+                searchButton.add_actor(image);
+                searchButton.connect("clicked", Lang.bind(this, this.search, GLib.get_home_dir()));
+                new Tooltips.Tooltip(searchButton, _("Search Home Folder"));
                 
                 this.bookmarkSection = new PopupMenu.PopupMenuSection();
                 bookmarkPane.addMenuItem(this.bookmarkSection);
@@ -374,8 +383,17 @@ MyApplet.prototype = {
             
             //system section
             let systemPane = new PopupMenu.PopupMenuSection();
-            let title = new PopupMenu.PopupMenuItem(_("SYSTEM"), { reactive: false });
+            let title = new PopupMenu.PopupBaseMenuItem({ reactive: false });
             systemPane.addMenuItem(title);
+            title.addActor(new St.Label({ text: _("SYSTEM") }));
+            
+            //add link to search tool
+            let searchButton = new St.Button();
+            title.addActor(searchButton);
+            let image = new St.Icon({ icon_name: "edit-find", icon_size: 10, icon_type: St.IconType.SYMBOLIC });
+            searchButton.add_actor(image);
+            searchButton.connect("clicked", Lang.bind(this, this.search));
+            new Tooltips.Tooltip(searchButton, _("Search File System"));
             
             this.systemSection = new PopupMenu.PopupMenuSection();
             systemPane.addMenuItem(this.systemSection);
@@ -575,6 +593,13 @@ MyApplet.prototype = {
     setPanelText: function() {
         if ( this.panelText ) this.set_applet_label(this.panelText);
         else this.set_applet_label("");
+    },
+    
+    search: function(a, b, directory) {
+        this.menu.close();
+        let command = this.metadata.path + "/search.py ";
+        if ( directory ) command += directory;
+        Util.spawnCommandLine(command);
     },
     
     set_applet_icon_symbolic_path: function(icon_path) {
