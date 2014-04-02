@@ -5,7 +5,6 @@ from gi.repository import Gio, Gtk, GLib, GObject, Pango, GdkPixbuf
 
 
 def launch(path):
-    print path
     fileObj = Gio.File.new_for_path(path)
     Gio.app_info_launch_default_for_uri(fileObj.get_uri(), Gio.AppLaunchContext())
 
@@ -47,16 +46,25 @@ class Context(Gtk.Menu):
         openFolder.connect("activate", self.openFolder)
         self.append(openFolder)
         
-        parent.connect("button-press-event", self.openContext)
+        parent.connect("button-press-event", self.onButtonPress)
         parent.connect("popup-menu", self.openContext)
         
         self.show_all()
     
-    def openContext(self, target, event=None):
-        if event is None or event.button == 3:
-            self.popup(None, None, None, None, 0, Gtk.get_current_event_time())
+    def onButtonPress(self, target, event):
+        if event.button == 3:
+            selection = target.get_selection()
+            info = target.get_path_at_pos(int(event.x), int(event.y))
+            if info is None:
+                return True
+            selection.select_path(info[0])
+            self.openContext()
             return True
+        
         return False
+    
+    def openContext(self):
+        self.popup(None, None, None, None, 0, Gtk.get_current_event_time())
     
     def launchItem(self, a):
         model, iter = self.parent.get_selection().get_selected()
@@ -71,34 +79,53 @@ class SearchWindow(Gtk.Window):
     searching = False
     
     def __init__(self, basePath):
-        Gtk.Window.__init__(self, title="Search", icon_name="edit-find")
+        Gtk.Window.__init__(self, title="Search", icon_name="edit-find", default_height=400, default_width=650)
         self.connect("destroy", self.quit)
         
         self.search = None
-        self.basePath = basePath
         self.results = Gtk.ListStore(str, str, str)
         
-        box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, border_width = 10)
-        self.add(box)
+        mainBox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, border_width = 10)
+        self.add(mainBox)
         
+        contentBox = Gtk.Box(border_width=0)
+        mainBox.pack_start(contentBox, True, True, 0)
+        
+        ##left pane
+        leftPane = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, border_width = 10)
+        contentBox.pack_start(leftPane, False, False, 0)
+        
+        #search box
         self.searchBox = SearchBox(self.startSearch)
-        box.pack_start(self.searchBox, False, False, 5)
+        leftPane.pack_start(self.searchBox, False, False, 5)
         
-        #search status
-        hbox = Gtk.Box()
-        box.pack_start(hbox, False, False, 5)
+        #location selector
+        leftPane.pack_start(Gtk.Label("Start in", halign=Gtk.Align.START), False, False, 5)
+        self.location = Gtk.FileChooserButton.new("Select a folder", Gtk.FileChooserAction.SELECT_FOLDER)
+        leftPane.add(self.location)
+        if not basePath is None:
+            self.location.set_filename(basePath)
         
-        self.currentLabel = Gtk.Label()
-        self.currentLabel.set_ellipsize(Pango.EllipsizeMode.END)
-        hbox.pack_start(self.currentLabel, False, False, 5)
+        #follow symlinks
+        self.symlinks = Gtk.CheckButton.new_with_label("Follow symlinks")
+        leftPane.add(self.symlinks)
         
-        stopButton = Gtk.Button(label = "Stop")
-        hbox.pack_end(stopButton, False, False, 5)
-        stopButton.connect("clicked", self.stopSearch)
+        #display hidden files/folders
+        self.hidden = Gtk.CheckButton.new_with_label("Search hidden")
+        leftPane.add(self.hidden)
+        
+        #stop button
+        self.stopButton = Gtk.Button(label = "Stop", sensitive=False)
+        leftPane.pack_end(self.stopButton, False, False, 5)
+        self.stopButton.connect("clicked", self.stopSearch)
+        
+        ##right pane
+        rightPane = Gtk.Box(orientation=Gtk.Orientation.VERTICAL, border_width = 10)
+        contentBox.pack_start(rightPane, True, True, 0)
         
         #results display tree
-        scrollBox = Gtk.ScrolledWindow(width_request = 500, height_request = 250)
-        box.pack_start(scrollBox, True, True, 5)
+        scrollBox = Gtk.ScrolledWindow()#width_request = 500, height_request = 250)
+        rightPane.pack_start(scrollBox, True, True, 5)
         tree = Gtk.TreeView(self.results)
         scrollBox.add(tree)
         
@@ -125,12 +152,12 @@ class SearchWindow(Gtk.Window):
         Context(tree)
         tree.connect("row-activated", self.launchItem)
         
-        #bottom buttons
-        buttonBox = Gtk.Box()
-        box.pack_end(buttonBox, False, False, 0)
-        self.closeButton = Gtk.Button(stock=Gtk.STOCK_CLOSE)
-        buttonBox.pack_end(self.closeButton, False, False, 5)
-        self.closeButton.connect("clicked", self.quit)
+        #status text
+        hbox = Gtk.Box()
+        mainBox.pack_start(hbox, False, False, 0)
+        self.currentLabel = Gtk.Label()
+        self.currentLabel.set_ellipsize(Pango.EllipsizeMode.END)
+        hbox.pack_start(self.currentLabel, False, False, 5)
         
         self.show_all()
     
@@ -149,7 +176,8 @@ class SearchWindow(Gtk.Window):
         
         self.searching = True
         
-        self.search = threading.Thread(target=self.searchDirectory, args=[self.basePath, self.searchBox.get_text(), True])
+        self.search = threading.Thread(target=self.searchDirectory, args=[self.location.get_filename(), self.searchBox.get_text(), True])
+        self.stopButton.set_sensitive(True)
         self.search.start()
     
     def stopSearch(self, a=None):
@@ -157,21 +185,19 @@ class SearchWindow(Gtk.Window):
         if not self.search is None:
             self.search.join();
             self.search = None
+        GObject.idle_add(self.setStatusText, "Search Stopped")
         self.setStatusText("Search Stopped")
+        self.stopButton.set_sensitive(False)
     
     def launchItem(self, event, path, column):
         row = self.results[path]
         launch(os.path.join(row[2], row[1]))
     
     def addResult(self, fileName, path, icon):
-        if not self.searching:
-            return
-        
         self.results.append([icon, fileName, path])
     
     def setStatusText(self, text):
-        if self.searching:
-            self.currentLabel.set_text(text)
+        self.currentLabel.set_text(text)
     
     def searchDirectory(self, directory, key, firstRun=False):
         if not self.searching:
@@ -186,7 +212,7 @@ class SearchWindow(Gtk.Window):
         
         subdirs = []
         for child in children:
-            if child[0] != ".":
+            if child[0] != "." or self.hidden.get_active():
                 path = os.path.join(directory,child)
                 if key in child:
                     fileObj = Gio.File.new_for_path(path)
@@ -199,7 +225,7 @@ class SearchWindow(Gtk.Window):
                         return
                     GObject.idle_add(self.addResult, child, directory, icon)
                 try:
-                    if os.path.isdir(path) and not os.path.islink(path):
+                    if os.path.isdir(path) and (self.symlinks.get_active() or not os.path.islink(path)):
                         subdirs.append(path)
                 except:
                     pass
@@ -210,7 +236,9 @@ class SearchWindow(Gtk.Window):
                 return
             self.searchDirectory(directory, key)
         
-        if firstRun:
+        if firstRun and self.searching:
+            self.searching = False
+            self.stopButton.set_sensitive(False)
             GObject.idle_add(self.setStatusText, "Search Completed")
 
 
