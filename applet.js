@@ -1,10 +1,12 @@
 const Gio = imports.gi.Gio;
 const GLib = imports.gi.GLib;
 const Gtk = imports.gi.Gtk;
+const Pango = imports.gi.Pango;
 const St = imports.gi.St;
 
 const Applet = imports.ui.applet;
 const Main = imports.ui.main;
+const ModalDialog = imports.ui.modalDialog;
 const PopupMenu = imports.ui.popupMenu;
 const Settings = imports.ui.settings;
 const Tooltips = imports.ui.tooltips;
@@ -15,6 +17,105 @@ const Lang = imports.lang;
 const MENU_ITEM_TEXT_LENGTH = 25;
 const MENU_PADDING_WIDTH = 25;
 let menu_item_icon_size;
+
+
+function AboutDialog(metadata) {
+    this._init(metadata);
+}
+
+AboutDialog.prototype = {
+    __proto__: ModalDialog.ModalDialog.prototype,
+    
+    _init: function(metadata) {
+        try {
+            ModalDialog.ModalDialog.prototype._init.call(this, {  });
+            
+            let contentBox = new St.BoxLayout({ style_class: "about-content" });
+            this.contentLayout.add_actor(contentBox);
+            
+            let icon;
+            if ( metadata.icon ) icon = new St.Icon({ icon_name: metadata.icon, icon_size: 48, icon_type: St.IconType.FULLCOLOR, style_class: "about-icon" });
+            else {
+                let file = Gio.file_new_for_path(metadata.path + "/icon.png");
+                if ( file.query_exists(null) ) {
+                    let gicon = new Gio.FileIcon({ file: file });
+                    icon = new St.Icon({ gicon: gicon, icon_size: 48, icon_type: St.IconType.FULLCOLOR, style_class: "about-icon" });
+                }
+                else {
+                    icon = new St.Icon({ icon_name: "applets", icon_size: 48, icon_type: St.IconType.FULLCOLOR, style_class: "about-icon" });
+                }
+            }
+            contentBox.add_actor(icon);
+            
+            let textBox = new St.BoxLayout({ vertical: true });
+            contentBox.add_actor(textBox);
+            
+            let titleBox = new St.BoxLayout();
+            textBox.add_actor(titleBox);
+            
+            let title = new St.Label({ text: metadata.name, style_class: "about-title" });
+            titleBox.add_actor(title);
+            
+            if ( metadata.version ) {
+                let versionBin = new St.Bin({ x_align: St.Align.START, y_align: St.Align.END});
+                titleBox.add_actor(versionBin);
+                let version = new St.Label({ text: "v " + metadata.version, style_class: "about-version" });
+                versionBin.add_actor(version);
+            }
+            
+            let uuid = new St.Label({ text: metadata.uuid, style_class: "about-uuid" });
+            textBox.add_actor(uuid);
+            
+            let desc = new St.Label({ text: metadata.description, style_class: "about-description" });
+            let text = desc.clutter_text;
+            text.ellipsize = Pango.EllipsizeMode.NONE;
+            text.line_wrap = true;
+            text.set_line_wrap_mode(Pango.WrapMode.WORD_CHAR);
+            textBox.add_actor(desc);
+            
+            if ( metadata.website ) {
+                let wsButton = new St.Button({ x_align: St.Align.START, style_class: "cinnamon-link", name: "about-website" });
+                textBox.add_actor(wsButton);
+                let website = new St.Label({ text: metadata.website });
+                let wtext = website.clutter_text;
+                wtext.ellipsize = Pango.EllipsizeMode.NONE;
+                wtext.line_wrap = true;
+                wtext.set_line_wrap_mode(Pango.WrapMode.WORD_CHAR);
+                wsButton.add_actor(website);
+                wsButton.connect("clicked", Lang.bind(this, this.launchSite, metadata.website));
+            }
+            
+            if ( metadata.contributors ) {
+                let label = new St.Label({ text: "Contributors: " });
+                textBox.add_actor(label);
+                
+                let list = metadata.contributors.split(",");
+                for ( let i = 0; i < list.length; i++ ) {
+                    let name = new St.Label({ text: list[i], style_class: "about-name" });
+                    textBox.add_actor(name);
+                }
+            }
+            
+            this.setButtons([
+                { label: "Close", key: "", focus: true, action: Lang.bind(this, this._onOk) }
+            ]);
+            
+            this.open(global.get_current_time());
+        } catch(e) {
+            global.log(e);
+        }
+    },
+    
+    _onOk: function() {
+        this.close(global.get_current_time());
+    },
+    
+    launchSite: function(a, b, site) {
+        Util.spawnCommandLine("xdg-open " + site);
+        this.close(global.get_current_time());
+    }
+}
+
 
 function MenuItem(title, icon){
     this._init(title, icon);
@@ -285,6 +386,8 @@ MyApplet.prototype = {
             this.setPanelText();
             this.set_applet_tooltip(_("Places"));
             
+            this._applet_context_menu.addAction("About...", Lang.bind(this, this.openAbout));
+            
             //listen for changes
             this.menuManager = new PopupMenu.PopupMenuManager(this);
             this.recentManager = new Gtk.RecentManager();
@@ -311,7 +414,11 @@ MyApplet.prototype = {
         if ( this.keyId ) Main.keybindingManager.removeHotKey(this.keyId);
     },
     
-    openMenu: function(){
+    openAbout: function() {
+        new AboutDialog(this.metadata);
+    },
+    
+    openMenu: function() {
         this.menu.toggle();
     },
     
