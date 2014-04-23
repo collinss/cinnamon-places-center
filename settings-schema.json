@@ -33,10 +33,21 @@
         "description": "Icon Size"
     },
     
-    "showBookmarks": {
+    "showUserSection": {
         "type": "checkbox",
         "description": "Show User Folders",
         "default": true
+    },
+    
+    "showTrash": {
+        "type": "combobox",
+        "description": "Show Trash",
+        "default": 2,
+        "options": {
+            "Never": 0,
+            "Always": 1,
+            "When not empty": 2
+        }
     },
     
     "sep1": {
@@ -70,17 +81,6 @@
         "type": "checkbox",
         "description": "Network",
         "default": true
-    },
-    
-    "showTrash": {
-        "type": "combobox",
-        "description": "Trash",
-        "default": 2,
-        "options": {
-            "Never": 0,
-            "Always": 1,
-            "When not empty": 2
-        }
     },
     
     "customPlaces": {

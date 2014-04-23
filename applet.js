@@ -289,7 +289,7 @@ MyApplet.prototype = {
             this.menuManager = new PopupMenu.PopupMenuManager(this);
             this.recentManager = new Gtk.RecentManager();
             this.recentManager.connect("changed", Lang.bind(this, this.buildRecentDocumentsSection));
-            Main.placesManager.connect("bookmarks-updated", Lang.bind(this, this.buildBookmarksSection));
+            Main.placesManager.connect("bookmarks-updated", Lang.bind(this, this.buildUserSection));
             this.volumeMonitor = Gio.VolumeMonitor.get();
             this.volumeMonitor.connect("volume-added", Lang.bind(this, this.updateVolumes));
             this.volumeMonitor.connect("volume-removed", Lang.bind(this, this.updateVolumes));
@@ -320,7 +320,7 @@ MyApplet.prototype = {
         this.settings.bindProperty(Settings.BindingDirection.IN, "panelIcon", "panelIcon", this.setPanelIcon);
         this.settings.bindProperty(Settings.BindingDirection.IN, "panelText", "panelText", this.setPanelText);
         this.settings.bindProperty(Settings.BindingDirection.IN, "iconSize", "iconSize", this.buildMenu)
-        this.settings.bindProperty(Settings.BindingDirection.IN, "showBookmarks", "showBookmarks", this.buildMenu);
+        this.settings.bindProperty(Settings.BindingDirection.IN, "showUserSection", "showUserSection", this.buildMenu);
         this.settings.bindProperty(Settings.BindingDirection.IN, "showComputer", "showComputer", this.buildSystemSection);
         this.settings.bindProperty(Settings.BindingDirection.IN, "showRoot", "showRoot", this.buildSystemSection);
         this.settings.bindProperty(Settings.BindingDirection.IN, "showVolumes", "showVolumes", this.buildSystemSection);
@@ -355,7 +355,7 @@ MyApplet.prototype = {
             section.actor.add_actor(mainBox);
             
             //User section
-            if ( this.showBookmarks ) {
+            if ( this.showUserSection ) {
                 let bookmarkPane = new PopupMenu.PopupMenuSection();
                 let title = new PopupMenu.PopupBaseMenuItem({ reactive: false });
                 bookmarkPane.addMenuItem(title);
@@ -369,11 +369,11 @@ MyApplet.prototype = {
                 searchButton.connect("clicked", Lang.bind(this, this.search, GLib.get_home_dir()));
                 new Tooltips.Tooltip(searchButton, _("Search Home Folder"));
                 
-                this.bookmarkSection = new PopupMenu.PopupMenuSection();
-                bookmarkPane.addMenuItem(this.bookmarkSection);
+                this.userSection = new PopupMenu.PopupMenuSection();
+                bookmarkPane.addMenuItem(this.userSection);
                 
                 mainBox.add_actor(bookmarkPane.actor, { span: 1 });
-                this.buildBookmarksSection();
+                this.buildUserSection();
                 
                 let paddingBox = new St.BoxLayout();
                 paddingBox.set_width(MENU_PADDING_WIDTH);
@@ -433,8 +433,8 @@ MyApplet.prototype = {
         }
     },
     
-    buildBookmarksSection: function() {
-        this.bookmarkSection.removeAll();
+    buildUserSection: function() {
+        this.userSection.removeAll();
         
         let defaultPlaces = Main.placesManager.getDefaultPlaces();
         let defaultPlaces = [defaultPlaces[0], defaultPlaces[1]];
@@ -442,8 +442,11 @@ MyApplet.prototype = {
         
         for ( let i = 0; i < bookmarks.length; i++) {
             let bookmark = new BookmarkMenuItem(this.menu, bookmarks[i]);
-            this.bookmarkSection.addMenuItem(bookmark);
+            this.userSection.addMenuItem(bookmark);
         }
+        
+        //trash
+        this.buildTrashItem();
     },
     
     buildSystemSection: function() {
@@ -479,9 +482,6 @@ MyApplet.prototype = {
             let connectToItem = new BookmarkMenuItem(this.menu, Main.placesManager.getDefaultPlaces()[2]);
             this.systemSection.addMenuItem(connectToItem);
         }
-        
-        //trash
-        this.buildTrashItem();
     },
     
     buildCustomPlaces: function() {
@@ -552,7 +552,7 @@ MyApplet.prototype = {
         this.updatingDevices = true;
         this.buildDevicesSection();
         this.updatingDevices = false;
-        this.buildBookmarksSection();
+        this.buildUserSection();
     },
     
     buildTrashItem: function() {
@@ -575,7 +575,7 @@ MyApplet.prototype = {
         let iName = ( trashcanEmpty ) ? "trashcan_empty" : "trashcan_full";
         
         this.trashItem = new PlaceMenuItem(this.menu, _("Trash"), uri, iName);
-        this.systemSection.addMenuItem(this.trashItem);
+        this.userSection.addMenuItem(this.trashItem);
     },
     
     setPanelIcon: function() {
