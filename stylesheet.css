@@ -1,0 +1,33 @@
+.about-content {
+    /*max-width: 300px;*/
+}
+
+.about-title {
+    font-size: 2em;
+    font-weight: bold;
+}
+
+.about-uuid {
+    font-size: .8em;
+}
+
+.about-icon {
+    padding-right: 20px;
+}
+
+.about-description {
+    padding-top: 10px;
+    padding-bottom: 10px;
+}
+
+.about-version {
+    padding-left: 7px;
+}
+
+#about-website {
+    padding-bottom: 10px;
+}
+
+.about-name {
+    padding-left: 20px;
+}

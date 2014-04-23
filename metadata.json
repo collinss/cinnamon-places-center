@@ -1,6 +1,9 @@
 {
     "uuid": "placesCenter@scollins",
     "name": "Places Center",
-    "description": "Provides an easy-to-read layout to access your places",
-    "icon": "user-home"
+    "description": "Provides an easy-to-read layout to access your places.",
+    "icon": "user-home",
+    "website": "https://github.com/collinss/cinnamon-places-center",
+    "version": 1.9,
+    "contributors": "Stephen Collins - Author"
 }
