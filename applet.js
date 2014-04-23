@@ -459,13 +459,15 @@ MyApplet.prototype = {
             this.menuManager.addMenu(this.menu);
             let section = new PopupMenu.PopupMenuSection();
             this.menu.addMenuItem(section);
-            let mainBox = new St.BoxLayout({ style_class: "menu-applications-box", vertical: false });
+            let mainBox = new St.BoxLayout({ style_class: "xCenter-mainBox", vertical: false });
             section.actor.add_actor(mainBox);
             
             //User section
-            let bookmarkPane = new PopupMenu.PopupMenuSection();
-            let userTitle = new PopupMenu.PopupBaseMenuItem({ reactive: false });
-            bookmarkPane.addMenuItem(userTitle);
+            let userPaneBox = new St.BoxLayout({ style_class: "xCenter-pane" });
+            let userPane = new PopupMenu.PopupMenuSection();
+            userPaneBox.add_actor(userPane.actor);
+            let userTitle = new PopupMenu.PopupBaseMenuItem({ style_class: "xCenter-title", reactive: false });
+            userPane.addMenuItem(userTitle);
             userTitle.addActor(new St.Label({ text: GLib.get_user_name().toUpperCase() }));
             
             //add link to search tool
@@ -477,18 +479,16 @@ MyApplet.prototype = {
             new Tooltips.Tooltip(userSearchButton, _("Search Home Folder"));
             
             this.userSection = new PopupMenu.PopupMenuSection();
-            bookmarkPane.addMenuItem(this.userSection);
+            userPane.addMenuItem(this.userSection);
             
-            mainBox.add_actor(bookmarkPane.actor, { span: 1 });
+            mainBox.add_actor(userPaneBox, { span: 1 });
             this.buildUserSection();
             
-            let paddingBox = new St.BoxLayout();
-            paddingBox.set_width(MENU_PADDING_WIDTH);
-            mainBox.add_actor(paddingBox);
-            
             //system section
+            let systemPaneBox = new St.BoxLayout({ style_class: "xCenter-pane" });
             let systemPane = new PopupMenu.PopupMenuSection();
-            let systemTitle = new PopupMenu.PopupBaseMenuItem({ reactive: false });
+            systemPaneBox.add_actor(systemPane.actor);
+            let systemTitle = new PopupMenu.PopupBaseMenuItem({ style_class: "xCenter-title", reactive: false });
             systemPane.addMenuItem(systemTitle);
             systemTitle.addActor(new St.Label({ text: _("SYSTEM") }));
             
@@ -503,12 +503,8 @@ MyApplet.prototype = {
             this.systemSection = new PopupMenu.PopupMenuSection();
             systemPane.addMenuItem(this.systemSection);
             
-            mainBox.add_actor(systemPane.actor, { span: 1 });
+            mainBox.add_actor(systemPaneBox, { span: 1 });
             this.buildSystemSection();
-            
-            let paddingBox2 = new St.BoxLayout();
-            paddingBox2.set_width(MENU_PADDING_WIDTH);
-            mainBox.add_actor(paddingBox2);
             
             //recent documents section
             if ( this.showRecentDocuments ) {
