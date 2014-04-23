@@ -427,12 +427,14 @@ MyApplet.prototype = {
         this.settings.bindProperty(Settings.BindingDirection.IN, "panelIcon", "panelIcon", this.setPanelIcon);
         this.settings.bindProperty(Settings.BindingDirection.IN, "panelText", "panelText", this.setPanelText);
         this.settings.bindProperty(Settings.BindingDirection.IN, "iconSize", "iconSize", this.buildMenu)
+        this.settings.bindProperty(Settings.BindingDirection.IN, "showDesktop", "showDesktop", this.buildUserSection);
+        this.settings.bindProperty(Settings.BindingDirection.IN, "userCustomPlaces", "userCustomPlaces", this.buildUserSection);
+        this.settings.bindProperty(Settings.BindingDirection.IN, "showTrash", "showTrash", this.buildTrashItem);
         this.settings.bindProperty(Settings.BindingDirection.IN, "showComputer", "showComputer", this.buildSystemSection);
         this.settings.bindProperty(Settings.BindingDirection.IN, "showRoot", "showRoot", this.buildSystemSection);
         this.settings.bindProperty(Settings.BindingDirection.IN, "showVolumes", "showVolumes", this.buildSystemSection);
         this.settings.bindProperty(Settings.BindingDirection.IN, "showNetwork", "showNetwork", this.buildSystemSection);
-        this.settings.bindProperty(Settings.BindingDirection.IN, "showTrash", "showTrash", this.buildTrashItem);
-        this.settings.bindProperty(Settings.BindingDirection.IN, "customPlaces", "customPlaces", this.buildSystemSection);
+        this.settings.bindProperty(Settings.BindingDirection.IN, "systemCustomPlaces", "systemCustomPlaces", this.buildSystemSection);
         this.settings.bindProperty(Settings.BindingDirection.IN, "showRecentDocuments", "showRecentDocuments", this.buildMenu);
         this.settings.bindProperty(Settings.BindingDirection.IN, "recentSizeLimit", "recentSizeLimit", this.buildRecentDocumentsSection);
         this.settings.bindProperty(Settings.BindingDirection.IN, "keyOpen", "keyOpen", this.setKeybinding);
@@ -541,13 +543,17 @@ MyApplet.prototype = {
         this.userSection.removeAll();
         
         let defaultPlaces = Main.placesManager.getDefaultPlaces();
-        let defaultPlaces = [defaultPlaces[0], defaultPlaces[1]];
-        let bookmarks = defaultPlaces.concat(Main.placesManager.getBookmarks());
+        let bookmarks = [defaultPlaces[0]]
+        if ( this.showDesktop ) bookmarks.push(defaultPlaces[1]);
+        let bookmarks = bookmarks.concat(Main.placesManager.getBookmarks());
         
         for ( let i = 0; i < bookmarks.length; i++) {
             let bookmark = new BookmarkMenuItem(this.menu, bookmarks[i]);
             this.userSection.addMenuItem(bookmark);
         }
+        
+        //custom places
+        this.buildCustomPlaces(this.userCustomPlaces, this.userSection);
         
         //trash
         this.buildTrashItem();
@@ -576,7 +582,7 @@ MyApplet.prototype = {
         }
         
         //custom places
-        this.buildCustomPlaces();
+        this.buildCustomPlaces(this.systemCustomPlaces, this.systemSection);
         
         //network items
         if ( this.showNetwork ) {
@@ -588,10 +594,10 @@ MyApplet.prototype = {
         }
     },
     
-    buildCustomPlaces: function() {
-        if ( this.customPlaces == "" ) return;
+    buildCustomPlaces: function(list, container) {
+        if ( list == "" ) return;
         let uris = [];
-        let customPlaces = this.customPlaces.split(",");
+        let customPlaces = list.split(",");
         
         for ( let i = 0; i < customPlaces.length; i++ ) {
             if ( customPlaces[i] == "" ) continue;
@@ -608,12 +614,10 @@ MyApplet.prototype = {
         
         if ( uris.length < 1 ) return;
         
-        let customPlacesSection = new PopupMenu.PopupMenuSection();
         for ( let i = 0; i < uris.length; i++ ) {
             let customPlace = new CustomMenuItem(this.menu, uris[i]);
-            customPlacesSection.addMenuItem(customPlace);
+            container.addMenuItem(customPlace);
         }
-        this.systemSection.addMenuItem(customPlacesSection);
     },
     
     buildDevicesSection: function() {

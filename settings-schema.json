@@ -33,6 +33,28 @@
         "description": "Icon Size"
     },
     
+    "sep1": {
+        "type": "separator"
+    },
+    
+    "userSection": {
+        "type": "header",
+        "description": "User Section"
+    },
+    
+    "showDesktop": {
+        "type": "checkbox",
+        "description": "Show Desktop",
+        "default": true
+    },
+    
+    "userCustomPlaces": {
+        "type": "entry",
+        "description": "Custom Places",
+        "default": "",
+        "tooltip": "Comma-separated list of file paths and/or uris"
+    },
+    
     "showTrash": {
         "type": "combobox",
         "description": "Show Trash",
@@ -44,47 +66,47 @@
         }
     },
     
-    "sep1": {
+    "sep2": {
         "type": "separator"
     },
     
     "places": {
         "type": "header",
-        "description": "Show in System Menu"
+        "description": "System Section"
     },
     
     "showComputer": {
         "type": "checkbox",
-        "description": "Computer",
+        "description": "Show Computer",
         "default": true
     },
     
     "showRoot": {
         "type": "checkbox",
-        "description": "File System",
+        "description": "Show File System",
         "default": true
     },
     
     "showVolumes": {
         "type": "checkbox",
-        "description": "Drives",
+        "description": "Show Mounted Volumes",
         "default": true
     },
     
     "showNetwork": {
         "type": "checkbox",
-        "description": "Network",
+        "description": "Show Network",
         "default": true
     },
     
-    "customPlaces": {
+    "systemCustomPlaces": {
         "type": "entry",
         "description": "Custom Places",
         "default": "",
         "tooltip": "Comma-separated list of file paths and/or uris"
     },
     
-    "sep2": {
+    "sep3": {
         "type": "separator"
     },
     
