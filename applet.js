@@ -30,9 +30,13 @@ AboutDialog.prototype = {
         try {
             ModalDialog.ModalDialog.prototype._init.call(this, {  });
             
-            let contentBox = new St.BoxLayout({ style_class: "about-content" });
+            let contentBox = new St.BoxLayout({ vertical: true, style_class: "about-content" });
             this.contentLayout.add_actor(contentBox);
             
+            let topBox = new St.BoxLayout();
+            contentBox.add_actor(topBox);
+            
+            //icon
             let icon;
             if ( metadata.icon ) icon = new St.Icon({ icon_name: metadata.icon, icon_size: 48, icon_type: St.IconType.FULLCOLOR, style_class: "about-icon" });
             else {
@@ -45,13 +49,14 @@ AboutDialog.prototype = {
                     icon = new St.Icon({ icon_name: "applets", icon_size: 48, icon_type: St.IconType.FULLCOLOR, style_class: "about-icon" });
                 }
             }
-            contentBox.add_actor(icon);
+            topBox.add_actor(icon);
             
-            let textBox = new St.BoxLayout({ vertical: true });
-            contentBox.add_actor(textBox);
+            let topTextBox = new St.BoxLayout({ vertical: true });
+            topBox.add_actor(topTextBox);
             
+            /*title*/
             let titleBox = new St.BoxLayout();
-            textBox.add_actor(titleBox);
+            topTextBox.add_actor(titleBox);
             
             let title = new St.Label({ text: metadata.name, style_class: "about-title" });
             titleBox.add_actor(title);
@@ -63,19 +68,41 @@ AboutDialog.prototype = {
                 versionBin.add_actor(version);
             }
             
+            //uuid
             let uuid = new St.Label({ text: metadata.uuid, style_class: "about-uuid" });
-            textBox.add_actor(uuid);
+            topTextBox.add_actor(uuid);
             
+            //description
             let desc = new St.Label({ text: metadata.description, style_class: "about-description" });
-            let text = desc.clutter_text;
-            text.ellipsize = Pango.EllipsizeMode.NONE;
-            text.line_wrap = true;
-            text.set_line_wrap_mode(Pango.WrapMode.WORD_CHAR);
-            textBox.add_actor(desc);
+            let dText = desc.clutter_text;
+            topTextBox.add_actor(desc);
             
+            /*description and comments*/
+            let scrollBox = new St.ScrollView({ style_class: "about-scrollBox" });
+            contentBox.add_actor(scrollBox);
+            let infoBox = new St.BoxLayout({ vertical: true, style_class: "about-scrollBox-innerBox" });
+            scrollBox.add_actor(infoBox);
+            
+            //comments
+            if ( metadata.comments ) {
+                let comments = new St.Label({ text: "Comments:\n\t" + metadata.comments });
+                let cText = comments.clutter_text;
+                cText.ellipsize = Pango.EllipsizeMode.NONE;
+                cText.line_wrap = true;
+                cText.set_line_wrap_mode(Pango.WrapMode.WORD_CHAR);
+                infoBox.add_actor(comments);
+            }
+            
+            //website
             if ( metadata.website ) {
+                let wsBox = new St.BoxLayout({ vertical: true });
+                infoBox.add_actor(wsBox);
+                
+                let wLabel = new St.Label({ text: "Website:" });
+                wsBox.add_actor(wLabel);
+                
                 let wsButton = new St.Button({ x_align: St.Align.START, style_class: "cinnamon-link", name: "about-website" });
-                textBox.add_actor(wsButton);
+                wsBox.add_actor(wsButton);
                 let website = new St.Label({ text: metadata.website });
                 let wtext = website.clutter_text;
                 wtext.ellipsize = Pango.EllipsizeMode.NONE;
@@ -85,17 +112,14 @@ AboutDialog.prototype = {
                 wsButton.connect("clicked", Lang.bind(this, this.launchSite, metadata.website));
             }
             
+            //contributors
             if ( metadata.contributors ) {
-                let label = new St.Label({ text: "Contributors: " });
-                textBox.add_actor(label);
-                
-                let list = metadata.contributors.split(",");
-                for ( let i = 0; i < list.length; i++ ) {
-                    let name = new St.Label({ text: list[i], style_class: "about-name" });
-                    textBox.add_actor(name);
-                }
+                let list = metadata.contributors.split(",").join("\n\t");
+                let contributors = new St.Label({ text: "Contributors:\n\t" + list });
+                infoBox.add_actor(contributors);
             }
             
+            //dialog close button
             this.setButtons([
                 { label: "Close", key: "", focus: true, action: Lang.bind(this, this._onOk) }
             ]);

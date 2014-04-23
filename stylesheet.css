@@ -11,7 +11,8 @@
 }
 
 .about-content {
-    
+    width: 550px;
+    height: 250px;
 }
 
 .about-title {
@@ -27,9 +28,17 @@
     padding-right: 20px;
 }
 
+.about-scrollBox {
+    padding-top: 1.2em;
+}
+
+.about-scrollBox-innerBox {
+    spacing: 1.2em;
+}
+
 .about-description {
     padding-top: 10px;
-    padding-bottom: 10px;
+    /*padding-bottom: 10px;*/
 }
 
 .about-version {
@@ -37,9 +46,5 @@
 }
 
 #about-website {
-    padding-bottom: 10px;
-}
-
-.about-name {
-    padding-left: 20px;
+    
 }
