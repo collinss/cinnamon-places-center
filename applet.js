@@ -410,7 +410,7 @@ MyApplet.prototype = {
             this.setPanelText();
             this.set_applet_tooltip(_("Places"));
             
-            this._applet_context_menu.addAction("About...", Lang.bind(this, this.openAbout));
+            this._applet_context_menu.addMenuItem(new Applet.MenuItem(_("About..."), "dialog-question", Lang.bind(this, this.openAbout)));
             
             //listen for changes
             this.menuManager = new PopupMenu.PopupMenuManager(this);
