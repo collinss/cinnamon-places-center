@@ -8,6 +8,5 @@ Done
 
 Wishlist
 --------
-    add search tool
     make 'tile' option?
-
+    symbolic icons in menu

@@ -318,7 +318,6 @@ MyApplet.prototype = {
     bindSettings: function() {
         this.settings = new Settings.AppletSettings(this, this.metadata.uuid, this.instanceId);
         this.settings.bindProperty(Settings.BindingDirection.IN, "panelIcon", "panelIcon", this.setPanelIcon);
-        this.settings.bindProperty(Settings.BindingDirection.IN, "symbolicPanelIcon", "symbolicPanelIcon", this.setPanelIcon);
         this.settings.bindProperty(Settings.BindingDirection.IN, "panelText", "panelText", this.setPanelText);
         this.settings.bindProperty(Settings.BindingDirection.IN, "iconSize", "iconSize", this.buildMenu)
         this.settings.bindProperty(Settings.BindingDirection.IN, "showBookmarks", "showBookmarks", this.buildMenu);
@@ -580,14 +579,17 @@ MyApplet.prototype = {
     },
     
     setPanelIcon: function() {
-        if ( this.panelIcon.split("/").length > 1 ) {
-            if ( this.symbolicPanelIcon && this.panelIcon.search("-symbolic.svg") > 0 ) this.set_applet_icon_symbolic_path(this.panelIcon);
-            else this.set_applet_icon_path(this.panelIcon);
+        if ( this.panelIcon == "" ||
+           ( GLib.path_is_absolute(this.panelIcon) &&
+             GLib.file_test(this.panelIcon, GLib.FileTest.EXISTS) ) ) {
+            if ( this.panelIcon.search("-symbolic.svg") == -1 ) this.set_applet_icon_path(this.panelIcon);
+            else this.set_applet_icon_symbolic_path(this.panelIcon);
         }
-        else {
-            if ( this.symbolicPanelIcon ) this.set_applet_icon_symbolic_name(this.panelIcon);
+        else if ( Gtk.IconTheme.get_default().has_icon(this.panelIcon) ) {
+            if ( this.panelIcon.search("-symbolic") != -1 ) this.set_applet_icon_symbolic_name(this.panelIcon);
             else this.set_applet_icon_name(this.panelIcon);
         }
+        else this.set_applet_icon_name("folder");
     },
     
     setPanelText: function() {

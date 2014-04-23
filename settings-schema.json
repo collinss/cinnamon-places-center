@@ -7,13 +7,8 @@
     "panelIcon": {
         "type": "iconfilechooser",
         "description": "Panel Icon",
-        "default": "folder"
-    },
-    
-    "symbolicPanelIcon": {
-        "type": "checkbox",
-        "description": "Symbolic",
-        "default": false
+        "default": "folder",
+        "tooltip": "Accepts icon name or direct path (supports symbolic icons)"
     },
     
     "panelText": {
