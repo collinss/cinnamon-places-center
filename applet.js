@@ -320,7 +320,6 @@ MyApplet.prototype = {
         this.settings.bindProperty(Settings.BindingDirection.IN, "panelIcon", "panelIcon", this.setPanelIcon);
         this.settings.bindProperty(Settings.BindingDirection.IN, "panelText", "panelText", this.setPanelText);
         this.settings.bindProperty(Settings.BindingDirection.IN, "iconSize", "iconSize", this.buildMenu)
-        this.settings.bindProperty(Settings.BindingDirection.IN, "showUserSection", "showUserSection", this.buildMenu);
         this.settings.bindProperty(Settings.BindingDirection.IN, "showComputer", "showComputer", this.buildSystemSection);
         this.settings.bindProperty(Settings.BindingDirection.IN, "showRoot", "showRoot", this.buildSystemSection);
         this.settings.bindProperty(Settings.BindingDirection.IN, "showVolumes", "showVolumes", this.buildSystemSection);
@@ -355,44 +354,42 @@ MyApplet.prototype = {
             section.actor.add_actor(mainBox);
             
             //User section
-            if ( this.showUserSection ) {
-                let bookmarkPane = new PopupMenu.PopupMenuSection();
-                let title = new PopupMenu.PopupBaseMenuItem({ reactive: false });
-                bookmarkPane.addMenuItem(title);
-                title.addActor(new St.Label({ text: GLib.get_user_name().toUpperCase() }));
-                
-                //add link to search tool
-                let searchButton = new St.Button();
-                title.addActor(searchButton);
-                let image = new St.Icon({ icon_name: "edit-find", icon_size: 10, icon_type: St.IconType.SYMBOLIC });
-                searchButton.add_actor(image);
-                searchButton.connect("clicked", Lang.bind(this, this.search, GLib.get_home_dir()));
-                new Tooltips.Tooltip(searchButton, _("Search Home Folder"));
-                
-                this.userSection = new PopupMenu.PopupMenuSection();
-                bookmarkPane.addMenuItem(this.userSection);
-                
-                mainBox.add_actor(bookmarkPane.actor, { span: 1 });
-                this.buildUserSection();
-                
-                let paddingBox = new St.BoxLayout();
-                paddingBox.set_width(MENU_PADDING_WIDTH);
-                mainBox.add_actor(paddingBox);
-            }
+            let bookmarkPane = new PopupMenu.PopupMenuSection();
+            let userTitle = new PopupMenu.PopupBaseMenuItem({ reactive: false });
+            bookmarkPane.addMenuItem(userTitle);
+            userTitle.addActor(new St.Label({ text: GLib.get_user_name().toUpperCase() }));
+            
+            //add link to search tool
+            let userSearchButton = new St.Button();
+            userTitle.addActor(userSearchButton);
+            let userSearchImage = new St.Icon({ icon_name: "edit-find", icon_size: 10, icon_type: St.IconType.SYMBOLIC });
+            userSearchButton.add_actor(userSearchImage);
+            userSearchButton.connect("clicked", Lang.bind(this, this.search, GLib.get_home_dir()));
+            new Tooltips.Tooltip(userSearchButton, _("Search Home Folder"));
+            
+            this.userSection = new PopupMenu.PopupMenuSection();
+            bookmarkPane.addMenuItem(this.userSection);
+            
+            mainBox.add_actor(bookmarkPane.actor, { span: 1 });
+            this.buildUserSection();
+            
+            let paddingBox = new St.BoxLayout();
+            paddingBox.set_width(MENU_PADDING_WIDTH);
+            mainBox.add_actor(paddingBox);
             
             //system section
             let systemPane = new PopupMenu.PopupMenuSection();
-            let title = new PopupMenu.PopupBaseMenuItem({ reactive: false });
-            systemPane.addMenuItem(title);
-            title.addActor(new St.Label({ text: _("SYSTEM") }));
+            let systemTitle = new PopupMenu.PopupBaseMenuItem({ reactive: false });
+            systemPane.addMenuItem(systemTitle);
+            systemTitle.addActor(new St.Label({ text: _("SYSTEM") }));
             
             //add link to search tool
-            let searchButton = new St.Button();
-            title.addActor(searchButton);
-            let image = new St.Icon({ icon_name: "edit-find", icon_size: 10, icon_type: St.IconType.SYMBOLIC });
-            searchButton.add_actor(image);
-            searchButton.connect("clicked", Lang.bind(this, this.search));
-            new Tooltips.Tooltip(searchButton, _("Search File System"));
+            let systemSearchButton = new St.Button();
+            systemTitle.addActor(systemSearchButton);
+            let systemSearchImage = new St.Icon({ icon_name: "edit-find", icon_size: 10, icon_type: St.IconType.SYMBOLIC });
+            systemSearchButton.add_actor(systemSearchImage);
+            systemSearchButton.connect("clicked", Lang.bind(this, this.search));
+            new Tooltips.Tooltip(systemSearchImage, _("Search File System"));
             
             this.systemSection = new PopupMenu.PopupMenuSection();
             systemPane.addMenuItem(this.systemSection);
@@ -400,9 +397,9 @@ MyApplet.prototype = {
             mainBox.add_actor(systemPane.actor, { span: 1 });
             this.buildSystemSection();
             
-            let paddingBox = new St.BoxLayout();
-            paddingBox.set_width(MENU_PADDING_WIDTH);
-            mainBox.add_actor(paddingBox);
+            let paddingBox2 = new St.BoxLayout();
+            paddingBox2.set_width(MENU_PADDING_WIDTH);
+            mainBox.add_actor(paddingBox2);
             
             //recent documents section
             if ( this.showRecentDocuments ) {

@@ -33,12 +33,6 @@
         "description": "Icon Size"
     },
     
-    "showUserSection": {
-        "type": "checkbox",
-        "description": "Show User Folders",
-        "default": true
-    },
-    
     "showTrash": {
         "type": "combobox",
         "description": "Show Trash",
