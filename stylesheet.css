@@ -1,5 +1,5 @@
 .xCenter-mainBox {
-    spacing: 25px;
+    
 }
 
 .xCenter-title {
@@ -8,6 +8,14 @@
 
 .xCenter-pane {
     
+}
+
+.xCenter-scrollBox {
+    
+}
+
+.xCenter-menuItemLabel {
+    max-width: 12em;
 }
 
 .about-content {

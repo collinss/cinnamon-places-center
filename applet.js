@@ -15,7 +15,6 @@ const Util = imports.misc.util;
 const Lang = imports.lang;
 
 const MENU_ITEM_TEXT_LENGTH = 25;
-const MENU_PADDING_WIDTH = 25;
 let menu_item_icon_size;
 
 
@@ -77,7 +76,7 @@ AboutDialog.prototype = {
             let dText = desc.clutter_text;
             topTextBox.add_actor(desc);
             
-            /*description and comments*/
+            /*optional content*/
             let scrollBox = new St.ScrollView({ style_class: "about-scrollBox" });
             contentBox.add_actor(scrollBox);
             let infoBox = new St.BoxLayout({ vertical: true, style_class: "about-scrollBox-innerBox" });
@@ -149,20 +148,21 @@ MenuItem.prototype = {
     __proto__: PopupMenu.PopupBaseMenuItem.prototype,
     
     _init: function(title, icon, params){
-        try{
+        try {
             
             PopupMenu.PopupBaseMenuItem.prototype._init.call(this, params);
-            this.addActor(icon);
+            this.actor.add_style_class_name("xCenter-menuItem");
+            if ( icon != null ) this.addActor(icon);
             
-            if ( title.length > MENU_ITEM_TEXT_LENGTH ) {
-                let tooltip = new Tooltips.Tooltip(this.actor, title);
-                title = title.slice(0,MENU_ITEM_TEXT_LENGTH-3) + "...";
-            }
-            let label = new St.Label({ text:title });
+            let label = new St.Label({ style_class: "xCenter-menuItemLabel", text: title });
             this.addActor(label);
+            label.clutter_text.ellipsize = Pango.EllipsizeMode.END;
+            
             this.actor._delegate = this;
             
-        } catch (e){
+            let tooltip = new Tooltips.Tooltip(this.actor, title);
+            
+        } catch (e) {
             global.logError(e);
         }
     }
@@ -532,13 +532,15 @@ MyApplet.prototype = {
             
             //recent documents section
             if ( this.showRecentDocuments ) {
+                let recentPaneBox = new St.BoxLayout({ style_class: "xCenter-pane" });
+                mainBox.add_actor(recentPaneBox);
                 let recentPane = new PopupMenu.PopupMenuSection();
-                mainBox.add_actor(recentPane.actor, { span: 1 });
+                recentPaneBox.add_actor(recentPane.actor);
                 
-                let title = new PopupMenu.PopupMenuItem(_("RECENT DOCUMENTS"), { reactive: false });
-                recentPane.addMenuItem(title);
+                let recentTitle = new PopupMenu.PopupMenuItem(_("RECENT DOCUMENTS"), { style_class: "xCenter-title", reactive: false });
+                recentPane.addMenuItem(recentTitle);
                 
-                let recentScrollBox = new St.ScrollView({ x_fill: true, y_fill: false, y_align: St.Align.START });
+                let recentScrollBox = new St.ScrollView({ style_class: "xCenter-scrollBox", x_fill: true, y_fill: false, y_align: St.Align.START });
                 recentPane.actor.add_actor(recentScrollBox);
                 recentScrollBox.set_policy(Gtk.PolicyType.NEVER, Gtk.PolicyType.AUTOMATIC);
                 let vscroll = recentScrollBox.get_vscroll_bar();
@@ -741,9 +743,9 @@ MyApplet.prototype = {
             if (this._scaleMode) {
                 let height = (this._panelHeight / DEFAULT_PANEL_HEIGHT) * PANEL_SYMBOLIC_ICON_DEFAULT_HEIGHT;
                 this._applet_icon = new St.Icon({gicon: gicon, icon_size: height,
-                                                icon_type: St.IconType.SYMBOLIC, reactive: true, track_hover: true, style_class: 'applet-icon' });
+                                                icon_type: St.IconType.SYMBOLIC, reactive: true, track_hover: true, style_class: "applet-icon" });
             } else {
-                this._applet_icon = new St.Icon({gicon: gicon, icon_size: 22, icon_type: St.IconType.FULLCOLOR, reactive: true, track_hover: true, style_class: 'applet-icon' });
+                this._applet_icon = new St.Icon({gicon: gicon, icon_size: 22, icon_type: St.IconType.FULLCOLOR, reactive: true, track_hover: true, style_class: "applet-icon" });
             }
             this._applet_icon_box.child = this._applet_icon;
         }
