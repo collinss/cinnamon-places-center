@@ -15,3 +15,4 @@ Wishlist and planned development
     make 'tile' option?
     symbolic icons in menu
     option: limit menu size
+    better icon
