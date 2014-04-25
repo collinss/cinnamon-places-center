@@ -93,6 +93,14 @@
         "default": true
     },
     
+    "onlyShowMounted": {
+        "type": "checkbox",
+        "description": "Only show mounted drives",
+        "default": false,
+        "indent": true,
+        "dependency": "showVolumes"
+    },
+    
     "showNetwork": {
         "type": "checkbox",
         "description": "Show network",

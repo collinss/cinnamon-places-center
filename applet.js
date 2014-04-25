@@ -457,6 +457,7 @@ MyApplet.prototype = {
         this.settings.bindProperty(Settings.BindingDirection.IN, "showComputer", "showComputer", this.buildSystemSection);
         this.settings.bindProperty(Settings.BindingDirection.IN, "showRoot", "showRoot", this.buildSystemSection);
         this.settings.bindProperty(Settings.BindingDirection.IN, "showVolumes", "showVolumes", this.buildSystemSection);
+        this.settings.bindProperty(Settings.BindingDirection.IN, "onlyShowMounted", "onlyShowMounted", this.buildSystemSection);
         this.settings.bindProperty(Settings.BindingDirection.IN, "showNetwork", "showNetwork", this.buildSystemSection);
         this.settings.bindProperty(Settings.BindingDirection.IN, "systemCustomPlaces", "systemCustomPlaces", this.buildSystemSection);
         this.settings.bindProperty(Settings.BindingDirection.IN, "showRecentDocuments", "showRecentDocuments", this.buildMenu);
@@ -655,6 +656,7 @@ MyApplet.prototype = {
                 if ( volume.get_name() == mounts[j].get_name() ) mounted = true;
             }
             
+            if ( !mounted && this.onlyShowMounted ) continue;
             let volumeMenuItem = new VolumeMenuItem(this.menu, volume, mounted);
             this.devicesSection.addMenuItem(volumeMenuItem);
         }
