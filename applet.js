@@ -481,6 +481,7 @@ MyApplet.prototype = {
             menu_item_icon_size = this.iconSize;
             
             this.menu = new Applet.AppletPopupMenu(this, this.orientation);
+            this.menu.actor.add_style_class_name("xCenter-menu");
             this.menuManager.addMenu(this.menu);
             let section = new PopupMenu.PopupMenuSection();
             this.menu.addMenuItem(section);
