@@ -2,13 +2,13 @@ Places Center is a feature-rich, cross-platform Cinnamon applet that provides ea
 
 To do before next release
 -------------------------
-    
+    Search: Add wild-card characters
+    Search: Fix column width handling for GTK >= 3.10
+    Search: Handle symlink loop
 
 Completed since last release
 ----------------------------
-    about dialog
-    improve settings
-    make menu more themeable
+    Switch to multiline text for custom places
 
 Wishlist and planned development
 --------------------------------

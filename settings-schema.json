@@ -49,9 +49,10 @@
     },
     
     "userCustomPlaces": {
-        "type": "entry",
+        "type": "textview",
         "description": "Custom places",
         "default": "",
+        "height": 50,
         "tooltip": "Comma-separated list of file paths and/or uris"
     },
     
@@ -108,9 +109,10 @@
     },
     
     "systemCustomPlaces": {
-        "type": "entry",
+        "type": "textview",
         "description": "Custom places",
         "default": "",
+        "height": 50,
         "tooltip": "Comma-separated list of file paths and/or uris"
     },
     
