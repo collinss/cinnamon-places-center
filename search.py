@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import sys, os, threading
+import sys, os, threading, re
 from gi.repository import Gio, Gtk, GLib, GObject, Pango, GdkPixbuf
 
 
@@ -214,7 +214,7 @@ class SearchWindow(Gtk.Window):
         for child in children:
             if child[0] != "." or self.hidden.get_active():
                 path = os.path.join(directory,child)
-                if key in child:
+                if self.isMatch(key, child):
                     fileObj = Gio.File.new_for_path(path)
                     info = fileObj.query_info("standard::icon", 0, None)
                     iconNames = info.get_icon().get_names()
@@ -240,6 +240,17 @@ class SearchWindow(Gtk.Window):
             self.searching = False
             self.stopButton.set_sensitive(False)
             GObject.idle_add(self.setStatusText, "Search Completed")
+    
+    def isMatch(self, key, child):
+        if key in child:
+            return True
+        else:
+            if re.search(key, child) == None:
+                return False
+            else:
+                return True
+            
+    
 
 
 if __name__ == "__main__":
