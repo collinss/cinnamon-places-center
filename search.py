@@ -134,6 +134,7 @@ class SearchWindow(Gtk.Window):
         fileNameColumn.set_resizable(True)
         fileNameColumn.set_sizing(Gtk.TreeViewColumnSizing.FIXED)
         fileNameColumn.set_fixed_width(200)
+        fileNameColumn.set_min_width(200)
         tree.append_column(fileNameColumn)
         
         iconRenderer = Gtk.CellRendererPixbuf()
@@ -145,7 +146,7 @@ class SearchWindow(Gtk.Window):
         fileNameColumn.add_attribute(fileNameRenderer, "text", 1)
         
         pathRenderer = Gtk.CellRendererText()
-        pathColumn = Gtk.TreeViewColumn("Path", pathRenderer, text=2)
+        pathColumn = Gtk.TreeViewColumn("Path", pathRenderer, text=2, resizable=True)
         tree.append_column(pathColumn)
         
         #context menu
