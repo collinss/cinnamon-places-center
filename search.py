@@ -146,7 +146,8 @@ class SearchWindow(Gtk.Window):
         fileNameColumn.add_attribute(fileNameRenderer, "text", 1)
         
         pathRenderer = Gtk.CellRendererText()
-        pathColumn = Gtk.TreeViewColumn("Path", pathRenderer, text=2, resizable=True)
+        pathColumn = Gtk.TreeViewColumn("Path", pathRenderer, text=2)
+        pathColumn.set_resizable(True)
         tree.append_column(pathColumn)
         
         #context menu
@@ -176,6 +177,7 @@ class SearchWindow(Gtk.Window):
         self.setStatusText("Searching...")
         
         self.searching = True
+        self.dirs = []
         
         self.search = threading.Thread(target=self.searchDirectory, args=[self.location.get_filename(), self.searchBox.get_text(), True])
         self.stopButton.set_sensitive(True)
@@ -226,11 +228,11 @@ class SearchWindow(Gtk.Window):
                         return
                     GObject.idle_add(self.addResult, child, directory, icon)
                 try:
-                    if os.path.isdir(path) and (self.symlinks.get_active() or not os.path.islink(path)):
+                    if os.path.isdir(path) and (self.symlinks.get_active() or not os.path.islink(path)) and not self.isRedundant(path):
                         subdirs.append(path)
+                        self.dirs.append(os.path.realpath(path))
                 except:
                     pass
-            
         
         for directory in subdirs:
             if not self.searching:
@@ -241,6 +243,14 @@ class SearchWindow(Gtk.Window):
             self.searching = False
             self.stopButton.set_sensitive(False)
             GObject.idle_add(self.setStatusText, "Search Completed")
+    
+    def isRedundant(self, path):
+        if not self.symlinks.get_active() or not os.path.islink(path) or not os.path.isdir(path):
+            return False
+        else:
+            if os.path.realpath(path) in self.dirs:
+                GObject.idle_add(self.setStatusText, "Skipping " + path + " - direcotry already searched")
+                return True
     
     def isMatch(self, key, child):
         if key in child:
