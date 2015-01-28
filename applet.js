@@ -161,14 +161,14 @@ PlaceMenuItem.prototype = {
 }
 
 
-function CustomMenuItem(menu, uri) {
-    this._init(menu, uri);
+function CustomMenuItem(menu, uri, name) {
+    this._init(menu, uri, name);
 }
 
 CustomMenuItem.prototype = {
     __proto__: MenuItem.prototype,
     
-    _init: function(menu, uri) {
+    _init: function(menu, uri, name) {
         try {
             
             this.menu = menu;
@@ -177,7 +177,9 @@ CustomMenuItem.prototype = {
             let fileInfo = Gio.File.new_for_uri(uri).query_info("*", 0, null);
             let icon = fileInfo.get_icon();
             
-            MenuItem.prototype._init.call(this, fileInfo.get_name(), St.TextureCache.get_default().load_gicon(null, icon, menu_item_icon_size));
+            if ( !name ) name = fileInfo.get_name()
+            
+            MenuItem.prototype._init.call(this, name, St.TextureCache.get_default().load_gicon(null, icon, menu_item_icon_size));
             
         } catch(e) {
             global.logError(e);
@@ -493,26 +495,25 @@ MyApplet.prototype = {
     buildCustomPlaces: function(list, container) {
         if ( list == "" ) return;
         let uris = [];
-        let customPlaces = list.split(",");
+        let customPlace;
+        let customPlaces = list.split(/, *|\n/);
         
         for ( let i = 0; i < customPlaces.length; i++ ) {
             if ( customPlaces[i] == "" ) continue;
             try {
                 
-                let place = customPlaces[i].replace("~/", GLib.get_home_dir() + "/");
+                let entry = customPlaces[i].split(":");
+                let place = entry[0].replace("~/", GLib.get_home_dir() + "/");
                 while ( place[0] == " " ) place = place.substr(1);
                 if ( place.search("://") == -1 ) place = "file://" + place;
                 let file = Gio.File.new_for_uri(place);
-                if ( file.query_exists(null) ) uris.push(place);
+                if ( file.query_exists(null) ) {
+                    if ( entry.length > 1 ) customPlace = new CustomMenuItem(this.menu, place, entry[1]);
+                    else customPlace = new CustomMenuItem(this.menu, place);
+                    container.addMenuItem(customPlace);
+                }
                 
             } catch(e) { continue; }
-        }
-        
-        if ( uris.length < 1 ) return;
-        
-        for ( let i = 0; i < uris.length; i++ ) {
-            let customPlace = new CustomMenuItem(this.menu, uris[i]);
-            container.addMenuItem(customPlace);
         }
     },
     

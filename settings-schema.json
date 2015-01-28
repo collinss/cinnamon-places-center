@@ -53,7 +53,7 @@
         "description": "Custom places",
         "default": "",
         "height": 50,
-        "tooltip": "Comma-separated list of file paths and/or uris"
+        "tooltip": "List of uris/file paths to be included. Entries may be separated by either a comma(,) or by a new-line. You can set the name to be displayed by adding :customName after the location."
     },
     
     "showTrash": {
@@ -113,7 +113,7 @@
         "description": "Custom places",
         "default": "",
         "height": 50,
-        "tooltip": "Comma-separated list of file paths and/or uris"
+        "tooltip": "List of uris/file paths to be included. Entries may be separated by either a comma(,) or by a new-line. You can set the name to be displayed by adding :customName after the location."
     },
     
     "sep3": {

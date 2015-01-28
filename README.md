@@ -10,6 +10,7 @@ Completed since last release
     Search: Added support for regular expressions
     Search: Fixed column width for GTK >= 3.10
     Search: Prevent symlink loop
+    Allow more complex definitions for custom places
 
 Wishlist and planned development
 --------------------------------
