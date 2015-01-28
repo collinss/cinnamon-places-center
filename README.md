@@ -15,6 +15,6 @@ Completed since last release
 Wishlist and planned development
 --------------------------------
     make 'tile' option?
-    symbolic icons in menu
+    symbolic icons in menu (must be changed in Cinnamon API)
     option: limit menu size
-    better icon
+    submenus
