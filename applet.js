@@ -56,7 +56,7 @@ BookmarkMenuItem.prototype = {
     
     _init: function(menu, place) {
         try {
-            this.menu = menu;
+            this.parentMenu = menu;
             this.place = place;
             
             let icon = place.iconFactory(menu_item_icon_size);
@@ -70,7 +70,7 @@ BookmarkMenuItem.prototype = {
     activate: function(event) {
         try {
             
-            this.menu.close();
+            this.parentMenu.close();
             this.place.launch();
             
         } catch(e) {
@@ -137,7 +137,7 @@ PlaceMenuItem.prototype = {
     _init: function(menu, title, uri, iName) {
         try {
             
-            this.menu = menu;
+            this.parentMenu = menu;
             this.uri = uri;
             
             let icon = new St.Icon({icon_name: iName, icon_size: menu_item_icon_size, icon_type: St.IconType.FULLCOLOR});
@@ -151,7 +151,7 @@ PlaceMenuItem.prototype = {
     activate: function(event) {
         try {
             
-            this.menu.close();
+            this.parentMenu.close();
             Gio.app_info_launch_default_for_uri(this.uri, global.create_app_launch_context());
             
         } catch(e) {
@@ -171,7 +171,7 @@ CustomMenuItem.prototype = {
     _init: function(menu, uri, name) {
         try {
             
-            this.menu = menu;
+            this.parentMenu = menu;
             this.uri = uri;
             
             let fileInfo = Gio.File.new_for_uri(uri).query_info("*", 0, null);
@@ -189,7 +189,7 @@ CustomMenuItem.prototype = {
     activate: function(event) {
         try {
             
-            this.menu.close();
+            this.parentMenu.close();
             Gio.app_info_launch_default_for_uri(this.uri, global.create_app_launch_context());
             
         } catch(e) {
@@ -209,7 +209,7 @@ RecentMenuItem.prototype = {
     _init: function(menu, title, iName, file) {
         try {
             
-            this.menu = menu;
+            this.parentMenu = menu;
             this.file = file;
             
             let icon = new St.Icon({icon_name: iName, icon_size: menu_item_icon_size, icon_type: St.IconType.FULLCOLOR});
@@ -223,7 +223,7 @@ RecentMenuItem.prototype = {
     activate: function(event) {
         try {
             
-            this.menu.close();
+            this.parentMenu.close();
             Gio.app_info_launch_default_for_uri(this.file, global.create_app_launch_context());
             
         } catch(e) {
@@ -243,7 +243,7 @@ ClearRecentMenuItem.prototype = {
     _init: function(menu, recentManager) {
         try {
             
-            this.menu = menu;
+            this.parentMenu = menu;
             this.recentManager = recentManager;
             
             let icon = new St.Icon({icon_name: "edit-clear", icon_size: menu_item_icon_size, icon_type: St.IconType.FULLCOLOR});
@@ -257,7 +257,7 @@ ClearRecentMenuItem.prototype = {
     activate: function(event) {
         try {
             
-            this.menu.close();
+            this.parentMenu.close();
             this.recentManager.purge_items();
             
         } catch(e) {
