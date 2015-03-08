@@ -280,7 +280,7 @@ MyApplet.prototype = {
             this.metadata = metadata;
             this.instanceId = instanceId;
             this.orientation = orientation;
-            Applet.TextIconApplet.prototype._init.call(this, this.orientation, panel_height);
+            Applet.TextIconApplet.prototype._init.call(this, this.orientation, panel_height, instanceId);
             
             //initiate settings
             this.bindSettings();
