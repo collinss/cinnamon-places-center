@@ -300,12 +300,21 @@ MyApplet.prototype = {
             this.volumeMonitor.connect("volume-removed", Lang.bind(this, this.updateVolumes));
             this.volumeMonitor.connect("mount-added", Lang.bind(this, this.updateVolumes));
             this.volumeMonitor.connect("mount-removed", Lang.bind(this, this.updateVolumes));
-            
+
             this.buildMenu();
             
         } catch(e) {
             global.logError(e);
         }
+    },
+
+    _onButtonPressEvent: function(actor, event) {
+        global.logWarning(event.get_button());
+        if ( event.get_button() == 2 ) {
+            let uri = Gio.file_new_for_path(GLib.get_home_dir()).get_uri();
+            Gio.app_info_launch_default_for_uri(uri, global.create_app_launch_context());
+        }
+        return Applet.Applet.prototype._onButtonPressEvent.call(this, actor, event);
     },
     
     on_applet_clicked: function(event) {
