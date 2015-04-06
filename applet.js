@@ -309,7 +309,6 @@ MyApplet.prototype = {
     },
 
     _onButtonPressEvent: function(actor, event) {
-        global.logWarning(event.get_button());
         if ( event.get_button() == 2 ) {
             let uri = Gio.file_new_for_path(GLib.get_home_dir()).get_uri();
             Gio.app_info_launch_default_for_uri(uri, global.create_app_launch_context());
