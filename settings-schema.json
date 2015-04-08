@@ -33,6 +33,13 @@
         "description": "Icon size"
     },
     
+    "middleClickLocation": {
+        "type": "entry",
+        "description": "Middle click location",
+        "default": "",
+        "tooltip": "Invalid location will fallback to home"
+    },
+    
     "sep1": {
         "type": "separator"
     },
