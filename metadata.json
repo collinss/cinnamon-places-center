@@ -6,5 +6,5 @@
     "icon": "user-home",
     "website": "https://github.com/collinss/cinnamon-places-center",
     "version": "2.1",
-    "contributors": "Stephen Collins - Author"
+    "contributors": "Stephen Collins - Author,kehugter - Added configurability to middle click"
 }
