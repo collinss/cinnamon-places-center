@@ -33,11 +33,12 @@
         "description": "Icon size"
     },
     
-    "middleClickLocation": {
-        "type": "entry",
-        "description": "Middle click location",
-        "default": "",
-        "tooltip": "Invalid location will fallback to home"
+    "middleClickPath": {
+        "type": "filechooser",
+        "description": "Open on middle click",
+        "default": "~/",
+        "select-dir": true,
+        "tooltip": "Leave blank to disable"
     },
     
     "sep1": {

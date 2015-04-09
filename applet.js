@@ -16,7 +16,6 @@ const Lang = imports.lang;
 
 const MENU_ITEM_TEXT_LENGTH = 25;
 let menu_item_icon_size;
-let middle_click_uri;
 
 
 function MenuItem(title, icon){
@@ -289,7 +288,6 @@ MyApplet.prototype = {
             //set up panel
             this.setPanelIcon();
             this.setPanelText();
-            this.setMiddleClickLocation();
             this.set_applet_tooltip(_("Places"));
             
             //listen for changes
@@ -312,7 +310,8 @@ MyApplet.prototype = {
 
     _onButtonPressEvent: function(actor, event) {
         if ( event.get_button() == 2 ) {
-            Gio.app_info_launch_default_for_uri(middle_click_uri, global.create_app_launch_context());
+            let uri = this.getMiddleClickUri();
+            if ( uri ) Gio.app_info_launch_default_for_uri(uri, global.create_app_launch_context());
         }
         return Applet.Applet.prototype._onButtonPressEvent.call(this, actor, event);
     },
@@ -334,7 +333,7 @@ MyApplet.prototype = {
         this.settings.bindProperty(Settings.BindingDirection.IN, "panelIcon", "panelIcon", this.setPanelIcon);
         this.settings.bindProperty(Settings.BindingDirection.IN, "panelText", "panelText", this.setPanelText);
         this.settings.bindProperty(Settings.BindingDirection.IN, "iconSize", "iconSize", this.buildMenu);
-        this.settings.bindProperty(Settings.BindingDirection.IN, "middleClickLocation", "middleClickLocation", this.setMiddleClickLocation);
+        this.settings.bindProperty(Settings.BindingDirection.IN, "middleClickPath", "middleClickPath");
         this.settings.bindProperty(Settings.BindingDirection.IN, "showDesktop", "showDesktop", this.buildUserSection);
         this.settings.bindProperty(Settings.BindingDirection.IN, "userCustomPlaces", "userCustomPlaces", this.buildUserSection);
         this.settings.bindProperty(Settings.BindingDirection.IN, "showTrash", "showTrash", this.buildTrashItem);
@@ -613,25 +612,18 @@ MyApplet.prototype = {
         else this.set_applet_label("");
     },
     
-    setMiddleClickLocation: function() {
-        if ( this.middleClickLocation == "") {
-            middle_click_uri = Gio.file_new_for_path(GLib.get_home_dir()).get_uri();
-            return;
-        }
+    getMiddleClickUri: function() {
+        if ( this.middleClickPath == "") return false;
         
-        try {
-            let place = this.middleClickLocation.replace("~", GLib.get_home_dir());
-            while ( place[0] == " " ) place = place.substr(1);
-            if ( place.search("://") == -1 ) place = "file://" + place;
-            let file = Gio.File.new_for_uri(place);
-            if ( file.query_exists(null) ) {
-                middle_click_uri = place;
-            } else {
-                middle_click_uri = Gio.file_new_for_path(GLib.get_home_dir()).get_uri();
-            }
-        } catch(e) { 
-            middle_click_uri = Gio.file_new_for_path(GLib.get_home_dir()).get_uri();
+        let path = this.middleClickPath.replace("~", GLib.get_home_dir());
+        if ( path.search("://") != -1 ) return path;
+
+        if ( GLib.path_is_absolute(path) &&
+             GLib.file_test(path, GLib.FileTest.EXISTS) ) {
+            return Gio.file_new_for_path(path).get_uri();
         }
+
+        return Gio.file_new_for_path(GLib.get_home_dir()).get_uri();
     },
     
     search: function(a, b, directory) {
