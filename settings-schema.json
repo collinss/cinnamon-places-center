@@ -19,7 +19,7 @@
     
     "keyOpen": {
         "type": "keybinding",
-        "description": "Menu shorcut key",
+        "description": "Menu shortcut key",
         "default": "<Super>p"
     },
     
