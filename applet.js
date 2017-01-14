@@ -266,6 +266,17 @@ ClearRecentMenuItem.prototype = {
     }
 }
 
+// l10n/translation
+const Gettext = imports.gettext;
+let UUID;
+
+function _(str) {
+   let customTranslation = Gettext.dgettext(UUID, str);
+   if(customTranslation != str) {
+      return customTranslation;
+   }
+   return Gettext.gettext(str);
+};
 
 function MyApplet(metadata, orientation, panel_height, instanceId) {
     this._init(metadata, orientation, panel_height, instanceId);
@@ -281,6 +292,10 @@ MyApplet.prototype = {
             this.instanceId = instanceId;
             this.orientation = orientation;
             Applet.TextIconApplet.prototype._init.call(this, this.orientation, panel_height, instanceId);
+
+            // l10n/translation
+            UUID = metadata.uuid;
+            Gettext.bindtextdomain(UUID, GLib.get_home_dir() + "/.local/share/locale");
             
             //initiate settings
             this.bindSettings();
@@ -407,7 +422,7 @@ MyApplet.prototype = {
             let systemSearchImage = new St.Icon({ icon_name: "edit-find", icon_size: 10, icon_type: St.IconType.SYMBOLIC });
             systemSearchButton.add_actor(systemSearchImage);
             systemSearchButton.connect("clicked", Lang.bind(this, this.search));
-            new Tooltips.Tooltip(systemSearchImage, _("Search File System"));
+            new Tooltips.Tooltip(systemSearchButton, _("Search File System"));
             
             this.systemSection = new PopupMenu.PopupMenuSection();
             systemPane.addMenuItem(this.systemSection);
